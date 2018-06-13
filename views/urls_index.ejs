@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('partials/_header.ejs') %>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th>Short URL</th>
+        <th>Long URL</th>
+      </tr>
+      <% Object.keys(urls).forEach(shortURL =>{ %>
+      <tr>
+        <td><%= shortURL %></td>
+        <td><%= urls[shortURL] %></td>
+      </tr>
+      <% }) %>
+    </table>
+    <!-- Use POST method to /urls_create so that it is rendered to urls_new.ejs -->
+    <form action='/urls_new' method='POST'>
+      <input type='submit' value='Create new short URL'>
+    </form>
+  </body>
+</html>
