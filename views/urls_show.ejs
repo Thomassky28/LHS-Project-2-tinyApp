@@ -4,6 +4,18 @@
     <%- include('partials/_header.ejs') %>
   </head>
   <body>
-    <%= `URL Conversion: ${longURL} -> ${shortURL}` %>
+    <h2>ShortURL:<%= shortURL %></h2>
+    <form action='/urls/<%= shortURL %>/update' method='POST'>
+      <input id='shortURL' type='hidden' name='shortURL' value='<%= shortURL %>'>
+      <input id='newLongURL' type='text' name='newLongURL' value='<% if(locals.longURL){ %><%= longURL %><% }else{ %><%= errURL %><% } %>'>
+      <input type='submit' value='Update'>
+    </form>
+    <p>
+      <% if(locals.errURL){ %>
+        <%- `${name}: ${message}` %>
+        <br>
+        <%- `${suggestion}` %>
+      <% } %>
+    </p>
   </body>
 </html>

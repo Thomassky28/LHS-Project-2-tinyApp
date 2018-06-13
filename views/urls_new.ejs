@@ -5,8 +5,17 @@
     <%- include('partials/_header') %>
     <form action='/urls' method='POST' style='margin: 150px;'>
      <label for='longURL'>Enter a URL:</label>
-     <input id='longURL' type='text' name='longURL' placeholder='http://' style='width: 300px;'>
+     <input id='longURL' type='text' name='longURL' placeholder='<% if(!locals.errURL){ %>please add http://<% } %>' value='<% if(locals.errURL){ %><%= errURL %><% } %>' style='width: 300px;'>
      <input type='submit' value='Submit'>
     </form>
+    <p>
+      <% if(locals.errURL){ %>
+        <%- `${name}: ${message}` %>
+        <br>
+        <%- `${suggestion}` %>
+      <% } %>
+    </p>
+    <!-- Initially rendered page doesn't have `errObj` variable and the webpage will not work.
+    Add `locals.` before the variable to avoid that -->
   </body>
 </html>

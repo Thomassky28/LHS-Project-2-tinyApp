@@ -1,18 +1,19 @@
 // require and execute express module. require body-parser module
 const app = require('express')();
+const request = require('request');
+// body-parser allows us to access POST request parameters
 const bodyParser = require('body-parser');
 const generateRandomString = require('./libs/tinyApp-functions');
 
-// ret default port to 8080
+// set default port to 8080
 const port = 8080;
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
+  'b2xVn2': 'http://lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
 
 
 /*
-  body-parser allows us to access POST request parameters
   the code below allows the returned value to be of any type.
   if extended: false, value can be a string or array
 */
@@ -22,50 +23,92 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 
 
-// req: request, res: response
+// root function
 app.get('/', (req, res) => {
   res.end('Hello!');
 });
 
-// route: GET /urls -> render urls_index.ejs with templateVars and display the page
+// get + /urls rendered to urls_index.ejs. display a table of shortURL and longURL
 app.get('/urls', (req, res) => {
-  // Object to pass to ./views/urls_index.ejs
   const templateVars = {urls: urlDatabase};
   res.render('urls_index', templateVars);
 });
 
-/* 
-  When you click on the 'Create new short URL' button, 
-  it makes a POST request to /urls_new and triggers the code below.
-  It will then render urls_new.ejs and display that template
-*/
-app.post('/urls_new', (req, res) => {
+// 'Create new short URL' button -> POST -> redirect to urls_new.ejs
+app.post('/urls/new', (req, res) => {
+  res.redirect('/urls/new');
+});
+
+// get + /urls/new rendered to urls_new.ejs. triggered when you go to /urls/new
+app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
-// Triggered when the Submit button is clicked on.
+// longURL submitted -> POST -> urls_index
 app.post('/urls', (req, res) => {
-  const longURL = req.body.longURL;
-  const shortURL = generateRandomString();
-  // Update the object
-  urlDatabase[shortURL] = longURL;
-  const templateVars = {urls: urlDatabase};
-  res.render('urls_index', templateVars);
-  // res.send('OK');
+  const originalURL = req.body.longURL;
+  // trim white spaces and convert everything to lowercase
+  const longURL = originalURL.toLowerCase().trim();
+  const options = {
+    url: longURL,
+    timeout: 3000
+  };
+
+  request(options, (reqErr, reqRes, reqBody) => {
+    const err = {
+      errURL: longURL,
+      suggestion: ''
+    };
+    if(reqErr){
+      // Add the error name and message to err Object
+      err.name = reqErr.name;
+      err.message = reqErr.message;
+      
+      if(/^invalid url|uri/i.test(err.message)){
+        // For invalid URL, add the cause of the error to err.suggestion
+        err.suggestion =  '- Make sure your URL contains http://';
+      }else if (/timedout/i.test(err.message)){
+        // Add a useful comment to err.suggestion
+        err.suggestion = '- Check if your URL is valid!';
+      }
+      res.render('urls_new', err);
+      return;
+    }
+
+    // Error 400: client error, 500: server error. Print out the status code and message
+    if(400 <= reqRes.statusCode){
+      err.name = `Error ${reqRes.statusCode}`;
+      err.message = reqRes.statusMessage;
+      res.render('urls_new', err);
+    }else{
+      // longURL works fine. Update the database
+      urlDatabase[generateRandomString()] = longURL;
+      res.redirect('/urls');
+    }
+  });
 });
 
-
+// When you use a shortURL to go its corresponding website
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
-/*
-  This middleware function should come before app.get('urls/:id'). 
-  Otherwise 'new' will bind to req.params.id 
-*/
-app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+// triggered when `delete` button is clicked
+app.post('/urls/:id/delete', (req, res) => {
+  const shortURL = req.params.id;
+  delete urlDatabase[shortURL];
+
+  res.redirect('/urls');
+});
+
+// triggered when `update` button is clicked
+app.post('/urls/:id', (req, res) => {
+  const templateVars = {
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id]
+  };
+  res.render('urls_show', templateVars);
 });
 
 app.get('/urls/:id', (req, res) => {
@@ -73,8 +116,51 @@ app.get('/urls/:id', (req, res) => {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id]
   };
-  // console.log(templateVars);
   res.render('urls_show', templateVars);
+});
+
+app.post('/urls/:id/update', (req, res) => {
+  const shortURL = req.body.shortURL;
+  const newLongURL = req.body.newLongURL;
+  
+  const options = {
+    url: newLongURL,
+    timeout: 3000
+  };
+
+  request(options, (reqErr, reqRes, reqBody) => {
+    const err = {
+      shortURL: shortURL,
+      errURL: newLongURL,
+      suggestion: ''
+    };
+    if(reqErr){
+      // Add the error name and message to err Object
+      err.name = reqErr.name;
+      err.message = reqErr.message;
+      
+      if(/^invalid url|uri/i.test(err.message)){
+        // For invalid URL, add the cause of the error to err.suggestion
+        err.suggestion =  '- Make sure your URL contains http://';
+      }else if (/timedout/i.test(err.message)){
+        // Add a useful comment to err.suggestion
+        err.suggestion = '- Check if your URL is valid!';
+      }
+      res.render('urls_show', err);
+      return;
+    }
+
+    // Error 400: client error, 500: server error. Print out the status code and message
+    if(400 <= reqRes.statusCode){
+      err.name = `Error ${reqRes.statusCode}`;
+      err.message = reqRes.statusMessage;
+      res.render('urls_show', err);
+    }else{
+      // longURL works fine. Update the database
+      urlDatabase[shortURL] = newLongURL;
+      res.redirect('/urls');
+    }
+  });
 });
 
 app.get('/urls.json', (req, res) => {
