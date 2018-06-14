@@ -7,14 +7,26 @@ const cookieParser = require('cookie-parser');
 const tinyAppFunctions = require('./libs/tinyApp-functions');
 const generateRandomString = tinyAppFunctions.generateRandomString;
 const addCookiesToObj = tinyAppFunctions.addCookiesToObj;
+const lookUpObj = tinyAppFunctions.lookUpObj;
 
-// set default port to 9000
-const port = 9000;
+// set default port to 8080
+const port = 8080;
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
-
+const users = { 
+  "user1RandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 /*
   the code below allows the returned value to be of any type.
@@ -30,6 +42,17 @@ app.set('view engine', 'ejs');
 // root function
 app.get('/', (req, res) => {
   res.end('Hello!');
+});
+
+app.get('/register', (req, res) => {
+  res.render('register_form');
+});
+
+app.post('/register', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const checkEmail = Object.values(users).filter(user => user.email === lookUpObj(email, 'value', user)[0]);
+
 });
 
 // login
