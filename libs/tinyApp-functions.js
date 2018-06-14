@@ -8,7 +8,7 @@ function generateRandomString(){
     const index = Math.floor(Math.random() * ingredient.length);
     result += ingredient[index];
   }
-
+  
   return result;
 }
 

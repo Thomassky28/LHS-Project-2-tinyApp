@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 // require function library from libs
 const tinyAppFunctions = require('./libs/tinyApp-functions');
 const generateRandomString = tinyAppFunctions.generateRandomString;
-const addCookiesToObj = tinyAppFunctions.generateRandomString;
+const addCookiesToObj = tinyAppFunctions.addCookiesToObj;
 
 // set default port to 9000
 const port = 9000;
@@ -52,7 +52,7 @@ app.post('/logout', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   addCookiesToObj(req, templateVars);
-  
+
   res.render('urls_index', templateVars);
 });
 
