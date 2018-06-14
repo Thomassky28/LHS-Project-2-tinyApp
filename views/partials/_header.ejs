@@ -18,12 +18,9 @@
     transform: translate(-50%, -50%);
     padding: 30px;
   }
+  th, td{
+    padding: 15px;
+    text-align: center;
+  }
 </style>
-<title>TinyApp</title>
-
-<% if(locals.username){ %>
-<%- include('_navbar') %>
-<% }else{ %>
-<!-- form only displayed if username is not stored in cookies -->
-<%- include('_login_div') %>
-<% } %>
+<title><%= locals.username %> TinyApp</title>

@@ -1,0 +1,34 @@
+<div>
+  <table class='table table-striped'>
+    <thead>
+      <tr>
+        <th>Short URL</th>
+        <th>Long URL</th>
+        <th colspan='2'>
+          <!-- Use POST method to /urls_create so that it is rendered to urls_new.ejs -->
+          <form action='/urls/new' method='POST'>
+            <button class='btn btn-success' type='submit'>Create new short URL</button>
+          </form>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <% Object.keys(urls).forEach(shortURL =>{ %>
+      <tr>
+        <td><%= shortURL %></td>
+        <td><%= urls[shortURL] %></td>
+        <td>
+          <form action='<%- `/urls/${shortURL}` %>' method='POST'>
+            <button class='btn btn-warning' type='submit'>Update</button>
+          </form>
+        </td>
+        <td>
+          <form action='<%- `/urls/${shortURL}/delete` %>' method='POST'>
+            <button class='btn btn-danger' type='submit'>Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

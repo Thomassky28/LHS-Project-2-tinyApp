@@ -4,6 +4,7 @@
     <%- include('partials/_header') %>
   </head>
   <body>
+    <%- include('partials/_user_validation') %>
     <h2>ShortURL:<%= shortURL %></h2>
     <form action='/urls/<%= shortURL %>/update' method='POST'>
       <input id='shortURL' type='hidden' name='shortURL' value='<%= shortURL %>'>

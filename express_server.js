@@ -6,12 +6,20 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const generateRandomString = require('./libs/tinyApp-functions');
 
-// set default port to 8080
-const port = 8080;
+// set default port to 9000
+const port = 9000;
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
+
+
+
+function addCookiesToObj(req, inputObj){
+  inputObj.cookies = req.cookies;
+  return inputObj;
+}
+
 
 
 /*
@@ -48,10 +56,9 @@ app.post('/logout', (req, res) => {
 
 // get + /urls rendered to urls_index.ejs. display a table of shortURL and longURL
 app.get('/urls', (req, res) => {
-  const templateVars = {
-    username: req.cookies['username'],
-    urls: urlDatabase
-  };
+  const templateVars = { urls: urlDatabase };
+  addCookiesToObj(req, templateVars);
+  
   res.render('urls_index', templateVars);
 });
 
@@ -62,7 +69,8 @@ app.post('/urls/new', (req, res) => {
 
 // get + /urls/new rendered to urls_new.ejs. triggered when you go to /urls/new
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = addCookiesToObj(req, {});
+  res.render('urls_new', templateVars);
 });
 
 // longURL submitted -> POST -> urls_index
@@ -129,6 +137,7 @@ app.post('/urls/:id', (req, res) => {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id]
   };
+  addCookiesToObj(req, templateVars);
   res.render('urls_show', templateVars);
 });
 
@@ -155,6 +164,9 @@ app.post('/urls/:id/update', (req, res) => {
       errURL: newLongURL,
       suggestion: ''
     };
+    
+    addCookiesToObj(req, err);
+    
     if(reqErr){
       // Add the error name and message to err Object
       err.name = reqErr.name;
