@@ -1,10 +1,12 @@
 // require and execute express module. require body-parser module
 const app = require('express')();
 const request = require('request');
-// body-parser allows us to access POST request parameters
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const generateRandomString = require('./libs/tinyApp-functions');
+// require function library from libs
+const tinyAppFunctions = require('./libs/tinyApp-functions');
+const generateRandomString = tinyAppFunctions.generateRandomString;
+const addCookiesToObj = tinyAppFunctions.generateRandomString;
 
 // set default port to 9000
 const port = 9000;
@@ -12,14 +14,6 @@ const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
-
-
-
-function addCookiesToObj(req, inputObj){
-  inputObj.cookies = req.cookies;
-  return inputObj;
-}
-
 
 
 /*

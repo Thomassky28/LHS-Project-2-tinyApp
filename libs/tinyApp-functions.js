@@ -12,5 +12,15 @@ function generateRandomString(){
   return result;
 }
 
+// Add cookies to an input object
+function addCookiesToObj(req, inputObj){
+  inputObj.cookies = req.cookies;
+  return inputObj;
+}
+
+
 // Export the function
-module.exports = generateRandomString;
+module.exports = {
+  generateRandomString: generateRandomString,
+  addCookiesToObj: addCookiesToObj
+};
