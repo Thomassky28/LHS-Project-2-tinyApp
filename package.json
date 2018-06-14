@@ -1,0 +1,27 @@
+{
+  "name": "w2-project2-tinyapp",
+  "version": "1.0.0",
+  "description": "Project #2 - tinyApp that shortens URLs",
+  "main": "express_server.js",
+  "dependencies": {
+    "cookie-parser": "^1.4.3",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "ejs": "^2.6.1",
+    "request": "^2.87.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/byeong0430/LHS-Project-2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/byeong0430/LHS-Project-2/issues"
+  },
+  "homepage": "https://github.com/byeong0430/LHS-Project-2#readme"
+}

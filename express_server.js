@@ -3,6 +3,7 @@ const app = require('express')();
 const request = require('request');
 // body-parser allows us to access POST request parameters
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const generateRandomString = require('./libs/tinyApp-functions');
 
 // set default port to 8080
@@ -18,6 +19,7 @@ const urlDatabase = {
   if extended: false, value can be a string or array
 */
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 // add ejs as a view engine
 app.set('view engine', 'ejs');
@@ -28,9 +30,28 @@ app.get('/', (req, res) => {
   res.end('Hello!');
 });
 
+// login
+app.post('/login', (req, res) => {
+  // get username from the form
+  const username = req.body.username;
+  // store username in the cookies
+  res.cookie('username', username);
+  res.redirect('/urls');
+});
+
+// logout
+app.post('/logout', (req, res) => {
+  // upon logging out, remove username stored in cookies
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
 // get + /urls rendered to urls_index.ejs. display a table of shortURL and longURL
 app.get('/urls', (req, res) => {
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {
+    username: req.cookies['username'],
+    urls: urlDatabase
+  };
   res.render('urls_index', templateVars);
 });
 

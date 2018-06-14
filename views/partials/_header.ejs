@@ -1,1 +1,19 @@
 <title>TinyApp</title>
+<% if(locals.username){ %>
+<table>
+  <tr>
+    <td><%= username %></td>
+    <td>
+      <form action='/logout' method='POST'>
+        <input type='submit' value='Logout'>
+      </form>        
+    </td>
+  </tr>
+</table>
+<% }else{ %>
+<!-- form only displayed if username is not stored in cookies -->
+<form action='/login' method='POST'>
+  <input id='username' name='username' type='text'>
+  <input type='submit' value='Login'>
+</form>
+<% } %>
