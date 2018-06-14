@@ -16,7 +16,7 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 };
 const users = { 
-  "user1RandomID": {
+  "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
@@ -52,10 +52,30 @@ app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const checkEmail = Object.values(users).filter(user => user.email === lookUpObj(email, 'value', user)[0]);
+  const checkPassword = Object.values(users).filter(user => user.password === lookUpObj(password, 'value', user)[0]);
 
+  // If the returned email OR password were not found in the users database, add them to the database!
+  if(email === '' || password === ''){
+    res.status(400).render('register_form', {errMessage: 'You have entered either an empty email or empty password!'});
+  }else if(checkEmail.length + checkPassword.length === 0){
+    const newKey = generateRandomString(10);
+    users[newKey] = {
+      id: newKey,
+      email: email,
+      password: password
+    };
+    res.cookie('user_id', users[newKey].id);
+    res.redirect('/urls');
+  }else{
+    res.status(400).render('register_form', {errMessage: 'Please use a different username and password combination!'});
+  }
 });
 
 // login
+app.get('/login', (req, res) => {
+
+})
+
 app.post('/login', (req, res) => {
   // get username from the form
   const username = req.body.username;
@@ -73,9 +93,12 @@ app.post('/logout', (req, res) => {
 
 // get + /urls rendered to urls_index.ejs. display a table of shortURL and longURL
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    users: users
+  };
   addCookiesToObj(req, templateVars);
-
+  console.log(templateVars);
   res.render('urls_index', templateVars);
 });
 
@@ -128,7 +151,7 @@ app.post('/urls', (req, res) => {
       res.render('urls_new', err);
     }else{
       // longURL works fine. Update the database
-      urlDatabase[generateRandomString()] = longURL;
+      urlDatabase[generateRandomString(6)] = longURL;
       res.redirect('/urls');
     }
   });

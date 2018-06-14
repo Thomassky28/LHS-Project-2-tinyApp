@@ -1,10 +1,9 @@
 // Generate a string of 6 random alphanumeric characters
-function generateRandomString(){
+function generateRandomString(length){
   const ingredient = '0123456789albcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const stringLen = 6;
   let result = '';
  
-  for(let i = 0; i < stringLen; i++){
+  for(let i = 0; i < length; i++){
     const index = Math.floor(Math.random() * ingredient.length);
     result += ingredient[index];
   }
