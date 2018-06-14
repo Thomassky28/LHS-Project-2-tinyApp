@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <%- include('partials/_header.ejs') %>
+    <%- include('partials/_header') %>
   </head>
   <body>
     <h2>ShortURL:<%= shortURL %></h2>
@@ -12,10 +12,11 @@
     </form>
     <p>
       <% if(locals.errURL){ %>
-        <%- `${name}: ${message}` %>
-        <br>
-        <%- `${suggestion}` %>
+      <%- `${name}: ${message}` %>
+      <br>
+      <%- `${suggestion}` %>
       <% } %>
     </p>
+    <%- include('partials/_footer')%>
   </body>
 </html>

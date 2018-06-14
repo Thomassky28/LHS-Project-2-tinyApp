@@ -9,7 +9,7 @@ const generateRandomString = require('./libs/tinyApp-functions');
 // set default port to 8080
 const port = 8080;
 const urlDatabase = {
-  'b2xVn2': 'http://lighthouselabs.ca',
+  'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
 

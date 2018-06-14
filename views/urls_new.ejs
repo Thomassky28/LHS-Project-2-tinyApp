@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang='en'>
-  <head></head>
-  <body style='font-size: 20px; padding: 50px;'>
+  <head>
     <%- include('partials/_header') %>
+  </head>
+  <body style='font-size: 20px; padding: 50px;'>
     <form action='/urls' method='POST' style='margin: 150px;'>
      <label for='longURL'>Enter a URL:</label>
      <input id='longURL' type='text' name='longURL' placeholder='<% if(!locals.errURL){ %>please add http://<% } %>' value='<% if(locals.errURL){ %><%= errURL %><% } %>' style='width: 300px;'>
@@ -17,5 +18,6 @@
     </p>
     <!-- Initially rendered page doesn't have `errObj` variable and the webpage will not work.
     Add `locals.` before the variable to avoid that -->
+    <%- include('partials/_footer')%>
   </body>
 </html>
