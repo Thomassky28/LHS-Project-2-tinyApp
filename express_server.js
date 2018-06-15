@@ -59,7 +59,7 @@ app.post('/login', (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const user_id = Object.keys(users).filter(key => users[key].email === username && users[key].password === password);
-  console.log(user_id);
+
   if(user_id.length === 0){
     // unable to find login credentials
     res.status(403).render('login_form', {message: 'Incorrect login credentials!'});
