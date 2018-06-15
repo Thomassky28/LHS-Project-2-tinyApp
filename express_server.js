@@ -3,6 +3,7 @@ const app = require('express')();
 const request = require('request');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
+const methodOverride = require('method-override');
 const bcrypt = require('bcryptjs');
 
 // require function library from libs
@@ -60,6 +61,8 @@ app.use(cookieSession({
   keys: ['user_id'],
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
+// override with POST having ?_method=DELETE
+app.use(methodOverride('_method'));
 
 // add ejs as a view engine
 app.set('view engine', 'ejs');
@@ -199,7 +202,7 @@ app.post('/urls', (req, res) => {
   });
 });
 
-// triggered when `update` button is clicked
+// go to update page
 app.post('/urls/:id', (req, res) => {
   const templateVars = {
     shortURL: req.params.id,
@@ -210,11 +213,11 @@ app.post('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.get('/urls/:id/update', (req,res) => {
-  res.redirect('/urls');
-});
+// app.get('/urls/:id/update', (req,res) => {
+//   res.redirect('/urls');
+// });
 
-app.post('/urls/:id/update', (req, res) => {
+app.put('/urls/:id', (req, res) => {
   const {shortURL, newLongURL} = req.body;
   const options = {
     url: newLongURL,
@@ -247,12 +250,12 @@ app.get('/u/:shortURL', (req, res) => {
   res.redirect(longURL);
 });
 
-app.get('/urls/:id/delete', (req, res) => {
-  res.redirect('/urls');
-});
+// app.get('/urls/:id/delete', (req, res) => {
+//   res.redirect('/urls');
+// });
 
-// triggered when `delete` button is clicked
-app.post('/urls/:id/delete', (req, res) => {
+// post -> delete by method-override
+app.delete('/urls/:id', (req, res) => {
   const shortURL = req.params.id;
   delete urlDatabase[shortURL];
 

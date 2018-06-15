@@ -24,7 +24,7 @@
           </form>
         </td>
         <td>
-          <form action='<%- `/urls/${urls[key].id}/delete` %>' method='POST'>
+          <form action='<%- `/urls/${urls[key].id}?_method=DELETE` %>' method='POST'>
             <button class='btn btn-danger' type='submit'>Delete</button>
           </form>
         </td>

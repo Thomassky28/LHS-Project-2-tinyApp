@@ -11,13 +11,13 @@
     </div>
     <% }else{ %>
     <h2>ShortURL: <%= shortURL %></h2>
-    <form action='/urls/<%= shortURL %>/update' method='POST'>
+    <form action='/urls/<%= shortURL %>?_method=PUT' method='POST'>
       <input id='shortURL' type='hidden' name='shortURL' value='<%= shortURL %>'>
       <input id='newLongURL' type='text' name='newLongURL' value='<% if(locals.longURL){ %><%= longURL %><% }else{ %><%= locals.longURL %><% } %>'>
       <input type='submit' value='Update'>
     </form>
     <p>
-      <% if(locals.longURL){ %>
+      <% if(locals.longURL && locals.errName){ %>
       <%- `${errName}: ${errMessage}` %>
       <br>
       <%- `${suggestion}` %>
