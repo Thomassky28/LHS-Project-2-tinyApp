@@ -175,14 +175,14 @@ app.post('/urls', (req, res) => {
     timeout: 3000
   };
   // create object to compile results of getRequestResults()
-  const param = { 
+  const reqInput = { 
     user: users[req.session.user_id],
     longURL: longURL,
     suggestion: ''
   };
 
   // send a request to a new URL and receive a response
-  getRequestResults(request, options, param).then(templateVars => {
+  getRequestResults(request, options, reqInput).then(templateVars => {
     // if no error, templateVars.errName key doesn't exist
     if(templateVars.errName){
       res.render('urls_new', templateVars);
@@ -221,7 +221,7 @@ app.post('/urls/:id/update', (req, res) => {
     timeout: 3000
   };
   // create object to compile results of getRequestResults()
-  const param = {
+  const reqInput = {
     user: users[req.session.user_id],
     shortURL: shortURL,
     longURL: newLongURL,
@@ -229,7 +229,7 @@ app.post('/urls/:id/update', (req, res) => {
   };
 
   // send a request to a new URL and receive a response
-  getRequestResults(request, options, param).then(templateVars => {
+  getRequestResults(request, options, reqInput).then(templateVars => {
     // if no error, templateVars.errName key doesn't exist
     if(templateVars.errName){
       res.render('urls_show', templateVars);
