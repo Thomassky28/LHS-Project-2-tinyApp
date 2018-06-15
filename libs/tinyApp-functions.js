@@ -25,7 +25,7 @@ function lookUpObj(needle, identity, haystack){
   }
 }
 
-function urlsForUser(id){
+function urlsForUser(id, urlDatabase){
   const result = {};
   Object.values(urlDatabase).forEach(item => {
     if(item.user_id === id){

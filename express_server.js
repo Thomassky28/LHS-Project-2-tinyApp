@@ -118,10 +118,8 @@ app.post('/register', (req, res) => {
 // get + /urls rendered to urls_index.ejs. display a table of shortURL and longURL
 app.get('/urls', (req, res) => {  
   const userId = Object.keys(users).filter(key => key === req.cookies.user_id)[0];
-
-  
   const templateVars = { 
-    urls: urlsForUser(userId),
+    urls: urlsForUser(userId, urlDatabase),
     user: users[userId]
   };
   // console.log(templateVars);
