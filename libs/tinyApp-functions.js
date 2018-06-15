@@ -25,9 +25,19 @@ function lookUpObj(needle, identity, haystack){
   }
 }
 
+function urlsForUser(id){
+  const result = {};
+  Object.values(urlDatabase).forEach(item => {
+    if(item.user_id === id){
+      result[item.id] = item;
+    }
+  });
+  return result;
+}
 
 // Export the function
 module.exports = {
   generateRandomString: generateRandomString,
-  lookUpObj: lookUpObj
+  lookUpObj: lookUpObj,
+  urlsForUser: urlsForUser
 };

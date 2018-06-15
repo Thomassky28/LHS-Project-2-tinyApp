@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const tinyAppFunctions = require('./libs/tinyApp-functions');
 const generateRandomString = tinyAppFunctions.generateRandomString;
 const lookUpObj = tinyAppFunctions.lookUpObj;
+const urlsForUser = tinyAppFunctions.urlsForUser;
 
 // set default port to 8080
 const port = 8080;
@@ -19,6 +20,11 @@ const urlDatabase = {
   '9sm5xK': {
     id: '9sm5xK',
     address: 'http://www.google.com',
+    user_id: 'user3RandomID'
+  },
+  '12ohzf': {
+    id: '12ohzf',
+    address: 'http://www.youtube.com',
     user_id: 'user3RandomID'
   }
 };
@@ -111,12 +117,14 @@ app.post('/register', (req, res) => {
 
 // get + /urls rendered to urls_index.ejs. display a table of shortURL and longURL
 app.get('/urls', (req, res) => {  
-  const userId = Object.keys(users).filter(key => key === req.cookies.user_id);
+  const userId = Object.keys(users).filter(key => key === req.cookies.user_id)[0];
+
+  
   const templateVars = { 
-    urls: urlDatabase,
+    urls: urlsForUser(userId),
     user: users[userId]
   };
-  
+  // console.log(templateVars);
   res.render('urls_index', templateVars);
 });
 
@@ -189,10 +197,14 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:id', (req, res) => {
   const templateVars = {
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].address,
     user: users[req.cookies.user_id]
   };
   res.render('urls_show', templateVars);
+});
+
+app.get('/urls/:id/update', (req,res) => {
+  res.redirect('/urls');
 });
 
 app.post('/urls/:id/update', (req, res) => {
@@ -243,6 +255,10 @@ app.post('/urls/:id/update', (req, res) => {
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+app.get('/urls/:id/delete', (req, res) => {
+  res.redirect('/urls');
 });
 
 // triggered when `delete` button is clicked
