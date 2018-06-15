@@ -81,7 +81,7 @@ app.post('/register', (req, res) => {
 
   // If the returned email OR password were not found in the users database, add them to the database!
   if(email === '' || password === ''){
-    res.status(400).render('register_form', {errMessage: 'You have entered either an empty email or empty password!'});
+    res.status(400).render('register_form', {message: 'Registration form incomplete!'});
   }else if(checkEmail.length + checkPassword.length === 0){
     const newKey = generateRandomString(10);
     users[newKey] = {
@@ -93,7 +93,7 @@ app.post('/register', (req, res) => {
     res.cookie('user_id', users[newKey].id);
     res.render('login_form', {message: 'Please log in with your new credentials.'});
   }else{
-    res.status(400).render('register_form', {message: 'Please use a different username and password combination!'});
+    res.status(400).render('register_form', {message: 'Email already in use.'});
   }
 });
 
