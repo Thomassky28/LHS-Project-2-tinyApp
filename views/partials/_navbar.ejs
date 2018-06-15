@@ -1,6 +1,15 @@
 <nav class="navbar navbar-light bg-light justify-content-between">
-  <a class="navbar-brand"><h3>Welcome! <%= user.email %></h3></a>
-  <form class='form-inline' action='/logout' method='POST'>
-    <button class='btn btn-outline-success my-2 my-sm-0' type='submit'>Log out</button>
-  </form>
+  <a class="navbar-brand"><h3>Welcome <% if(locals.user){ %><%= user.email %><% }else{ %> to TinyApp<% } %>!</h3></a>
+  
+    <% if(locals.user){ %>
+    <form class='form-inline' action='/logout' method='POST'>
+      <button class='btn btn-outline-success my-2 my-sm-0' type='submit'>Log out</button>
+    </form>
+    <% }else{ %>
+    <div class='btn-group my-2 my-sm-0' role='group'>
+      <a href='/login'><button class='btn btn-primary'>Login</button></a>
+      <a href='/register'><button class='btn btn-success'>Register</button></a>
+    </div>
+    <% } %>
+
 </nav>

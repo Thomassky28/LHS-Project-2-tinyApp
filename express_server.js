@@ -55,17 +55,17 @@ app.get('/login', (req, res) => {
   res.render('login_form');
 });
 
+// re-attempt logins. error message will be triggered if incorrect login credentials were passed.
 app.post('/login', (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const user_id = Object.keys(users).filter(key => users[key].email === username && users[key].password === password);
+  const {username, password} = req.body;
+  const user_id = Object.keys(users).filter(key => users[key].email === username && users[key].password === password)[0];
 
-  if(user_id.length === 0){
+  if(user_id){
+    res.cookie('user_id', user_id);
+    res.redirect('/urls');
+  }else{
     // unable to find login credentials
     res.status(403).render('login_form', {message: 'Incorrect login credentials!'});
-  }else{
-    res.cookie('user_id', user_id[0]);
-    res.redirect('/urls');
   }
 });
 
@@ -74,8 +74,7 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const {email, password} = req.body;
   const checkEmail = Object.values(users).filter(user => user.email === lookUpObj(email, 'value', user)[0]);
   const checkPassword = Object.values(users).filter(user => user.password === lookUpObj(password, 'value', user)[0]);
 
@@ -105,12 +104,7 @@ app.get('/urls', (req, res) => {
     user: users[userId]
   };
   
-  if (userId.length === 1){
-    res.render('urls_index', templateVars);
-  }
-  else{
-    res.redirect('/login');
-  }
+  res.render('urls_index', templateVars);
 });
 
 // 'Create new short URL' button -> POST -> redirect to urls_new.ejs
@@ -180,9 +174,7 @@ app.post('/urls/:id', (req, res) => {
 });
 
 app.post('/urls/:id/update', (req, res) => {
-  const shortURL = req.body.shortURL;
-  const newLongURL = req.body.newLongURL;
-  
+  const {shortURL, newLongURL} = req.body;
   const options = {
     url: newLongURL,
     timeout: 3000
