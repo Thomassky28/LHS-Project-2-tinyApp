@@ -5,7 +5,7 @@
       <p>Log in or <a href='/register'>Sign up</a></p>
     </div>
     <div class='form-group'>
-      <input class='form-control' id='login-username' name='username' placeholder='Enter email address..' type='text'>
+      <input class='form-control' id='login-username' name='username' value='<% if(locals.email){ %><%= email %><% } %>' placeholder='Enter email address..' type='text'>
     </div>
     <div class='form-group'>
       <input class='form-control' id='login-paassword' name='password' placeholder='Enter password..' type='password'>

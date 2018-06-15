@@ -5,12 +5,12 @@ TinyApp is an application that shortens a long URL with 5 random alphanumeric ch
 
 ## Dependencies
 Download the following modules via npm
-- express
-- request
-- ejs
-- body-parser
-- cookie-parser
-- bcrypt (`npm install bcryptjs` instead of `npm install bcrypt`)
+- `express`
+- `request`
+- `ejs`
+- `body-parser`
+- `cookie-session (replaced `cookie-parser`)
+- `bcryptjs` (`npm install bcryptjs` instead of `npm install bcrypt`)
 
 ```js
 npm init
