@@ -15,21 +15,27 @@
       </tr>
     </thead>
     <tbody>
-      <% Object.keys(urls).forEach(shortURL =>{ %>
+      <% Object.keys(urls).forEach(key =>{ %>
       <tr>
-        <td><%= shortURL %></td>
-        <td><%= urls[shortURL] %></td>
+        <td><%= urls[key].id %></td>
+        <td><%= urls[key].address %></td>
         <% if(user){ %>
+        <% if(urls[key].user_id === user.id){ %>
         <td>
-          <form action='<%- `/urls/${shortURL}` %>' method='POST'>
+          <form action='<%- `/urls/${urls[key].id}` %>' method='POST'>
             <button class='btn btn-warning' type='submit'>Update</button>
           </form>
         </td>
         <td>
-          <form action='<%- `/urls/${shortURL}/delete` %>' method='POST'>
+          <form action='<%- `/urls/${urls[key].id}/delete` %>' method='POST'>
             <button class='btn btn-danger' type='submit'>Delete</button>
           </form>
         </td>
+        <% }else{ %>
+          <!-- blank <td> for rows that don't belong to current user -->
+          <td></td>
+          <td></td>
+        <% } %>
         <% } %>
       </tr>
       <% }) %>

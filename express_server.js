@@ -11,9 +11,18 @@ const lookUpObj = tinyAppFunctions.lookUpObj;
 // set default port to 8080
 const port = 8080;
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
+  'b2xVn2': {
+    id: 'b2xVn2',
+    address: 'http://www.lighthouselabs.ca',
+    user_id: 'user2RandomID'
+  },
+  '9sm5xK': {
+    id: '9sm5xK',
+    address: 'http://www.google.com',
+    user_id: 'user3RandomID'
+  }
 };
+
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
@@ -42,6 +51,10 @@ app.use(cookieParser());
 // add ejs as a view engine
 app.set('view engine', 'ejs');
 
+
+app.get('/', (req, res) => {
+  res.redirect('/urls');
+});
 
 // logout
 app.post('/logout', (req, res) => {
@@ -114,7 +127,11 @@ app.post('/urls/new', (req, res) => {
 
 // get + /urls/new rendered to urls_new.ejs. triggered when you go to /urls/new
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new', {user: users[req.cookies.user_id]});
+  if(req.cookies.user_id){
+    res.render('urls_new', {user: users[req.cookies.user_id]});
+  }else{
+    res.redirect('/login');
+  }
 });
 
 // longURL submitted -> POST -> urls_index
@@ -156,8 +173,13 @@ app.post('/urls', (req, res) => {
       err.message = reqRes.statusMessage;
       res.render('urls_new', err);
     }else{
+      const newKey = generateRandomString(6);
       // longURL works fine. Update the database
-      urlDatabase[generateRandomString(6)] = longURL;
+      urlDatabase[newKey] = {
+        id: newKey,
+        address: longURL,
+        user_id: req.cookies.user_id
+      };
       res.redirect('/urls');
     }
   });
@@ -232,12 +254,18 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 app.get('/urls/:id', (req, res) => {
-  const templateVars = {
-    shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id],
-    user: users[req.cookies.user_id]
-  };
-  res.render('urls_show', templateVars);
+  if(req.cookies.user_id){
+    // user_id exists in cookie
+    const templateVars = {
+      shortURL: req.params.id,
+      longURL: urlDatabase[req.params.id],
+      user: users[req.cookies.user_id]
+    };
+    res.render('urls_show', templateVars);
+  }else{
+    res.redirect('/login');
+  }
+
 });
 
 
