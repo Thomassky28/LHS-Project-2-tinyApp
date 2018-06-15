@@ -7,12 +7,12 @@
     <%- include('partials/_navbar') %>
     <form action='/urls' method='POST' style='margin: 150px;'>
      <label for='longURL'>Enter a URL:</label>
-     <input id='longURL' type='text' name='longURL' placeholder='<% if(!locals.errURL){ %>please add http://<% } %>' value='<% if(locals.errURL){ %><%= errURL %><% } %>' style='width: 300px;'>
+     <input id='longURL' type='text' name='longURL' placeholder='<% if(!locals.longURL){ %>please add http://<% } %>' value='<% if(locals.longURL){ %><%= longURL %><% } %>' style='width: 300px;'>
      <input type='submit' value='Submit'>
     </form>
     <p>
-      <% if(locals.errURL){ %>
-        <%- `${name}: ${message}` %>
+      <% if(locals.longURL){ %>
+        <%- `${errName}: ${errMessage}` %>
         <br>
         <%- `${suggestion}` %>
       <% } %>

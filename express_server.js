@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 
 // require function library from libs
 const tinyAppFunctions = require('./libs/tinyApp-functions');
+const getRequestResults = tinyAppFunctions.getRequestResults;
 const generateRandomString = tinyAppFunctions.generateRandomString;
 const lookUpObj = tinyAppFunctions.lookUpObj;
 const urlsForUser = tinyAppFunctions.urlsForUser;
@@ -104,7 +105,6 @@ app.post('/login', (req, res) => {
     res.redirect('/urls');
   }else{
     // incorrect password
-    console.log(username);
     const templateVars = {
       email: username,
       message: "Incorrect password!"
@@ -148,7 +148,6 @@ app.get('/urls', (req, res) => {
     urls: urlsForUser(userId, urlDatabase),
     user: users[userId]
   };
-  // console.log(templateVars);
   res.render('urls_index', templateVars);
 });
 
@@ -175,38 +174,21 @@ app.post('/urls', (req, res) => {
     url: longURL,
     timeout: 3000
   };
+  // create object to compile results of getRequestResults()
+  const param = { 
+    user: users[req.session.user_id],
+    longURL: longURL,
+    suggestion: ''
+  };
 
-  request(options, (reqErr, reqRes, reqBody) => {
-    const err = {
-      errURL: longURL,
-      suggestion: '',
-      user: users[req.session.user_id]
-    };
-
-    if(reqErr){
-      // Add the error name and message to err Object
-      err.name = reqErr.name;
-      err.message = reqErr.message;
-      
-      if(/^invalid url|uri/i.test(err.message)){
-        // For invalid URL, add the cause of the error to err.suggestion
-        err.suggestion =  '- Make sure your URL contains http://';
-      }else if (/timedout/i.test(err.message)){
-        // Add a useful comment to err.suggestion
-        err.suggestion = '- Check if your URL is valid!';
-      }
-      res.render('urls_new', err);
-      return;
-    }
-
-    // Error 400: client error, 500: server error. Print out the status code and message
-    if(400 <= reqRes.statusCode){
-      err.name = `Error ${reqRes.statusCode}`;
-      err.message = reqRes.statusMessage;
-      res.render('urls_new', err);
+  // send a request to a new URL and receive a response
+  getRequestResults(request, options, param).then(templateVars => {
+    // if no error, templateVars.errName key doesn't exist
+    if(templateVars.errName){
+      res.render('urls_new', templateVars);
     }else{
-      const newKey = generateRandomString(6);
       // longURL works fine. Update the database
+      const newKey = generateRandomString(6);
       urlDatabase[newKey] = {
         id: newKey,
         address: longURL,
@@ -238,36 +220,19 @@ app.post('/urls/:id/update', (req, res) => {
     url: newLongURL,
     timeout: 3000
   };
+  // create object to compile results of getRequestResults()
+  const param = {
+    user: users[req.session.user_id],
+    shortURL: shortURL,
+    longURL: newLongURL,
+    suggestion: ''
+  };
 
-  request(options, (reqErr, reqRes, reqBody) => {
-    const err = {
-      shortURL: shortURL,
-      errURL: newLongURL,
-      suggestion: '',
-      user: users[req.session.user_id]
-    };
-    
-    if(reqErr){
-      // Add the error name and message to err Object
-      err.name = reqErr.name;
-      err.message = reqErr.message;
-      
-      if(/^invalid url|uri/i.test(err.message)){
-        // For invalid URL, add the cause of the error to err.suggestion
-        err.suggestion =  '- Make sure your URL contains http://';
-      }else if (/timedout/i.test(err.message)){
-        // Add a useful comment to err.suggestion
-        err.suggestion = '- Check if your URL is valid!';
-      }
-      res.render('urls_show', err);
-      return;
-    }
-
-    // Error 400: client error, 500: server error. Print out the status code and message
-    if(400 <= reqRes.statusCode){
-      err.name = `Error ${reqRes.statusCode}`;
-      err.message = reqRes.statusMessage;
-      res.render('urls_show', err);
+  // send a request to a new URL and receive a response
+  getRequestResults(request, options, param).then(templateVars => {
+    // if no error, templateVars.errName key doesn't exist
+    if(templateVars.errName){
+      res.render('urls_show', templateVars);
     }else{
       // longURL works fine. Update the database
       urlDatabase[shortURL].address = newLongURL;

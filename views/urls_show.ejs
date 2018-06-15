@@ -13,12 +13,12 @@
     <h2>ShortURL: <%= shortURL %></h2>
     <form action='/urls/<%= shortURL %>/update' method='POST'>
       <input id='shortURL' type='hidden' name='shortURL' value='<%= shortURL %>'>
-      <input id='newLongURL' type='text' name='newLongURL' value='<% if(locals.longURL){ %><%= longURL %><% }else{ %><%= locals.errURL %><% } %>'>
+      <input id='newLongURL' type='text' name='newLongURL' value='<% if(locals.longURL){ %><%= longURL %><% }else{ %><%= locals.longURL %><% } %>'>
       <input type='submit' value='Update'>
     </form>
     <p>
-      <% if(locals.errURL){ %>
-      <%- `${name}: ${message}` %>
+      <% if(locals.longURL){ %>
+      <%- `${errName}: ${errMessage}` %>
       <br>
       <%- `${suggestion}` %>
       <% } %>
