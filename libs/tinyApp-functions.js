@@ -11,12 +11,6 @@ function generateRandomString(length){
   return result;
 }
 
-// Add cookies to an input object
-function addCookiesToObj(req, inputObj){
-  inputObj.cookies = req.cookies;
-  return inputObj;
-}
-
 /*
   Find a value (needle) in an object (haystack). If the value exists, return the value, if not return an empty array
   Options for identity: 
@@ -35,6 +29,5 @@ function lookUpObj(needle, identity, haystack){
 // Export the function
 module.exports = {
   generateRandomString: generateRandomString,
-  addCookiesToObj: addCookiesToObj,
   lookUpObj: lookUpObj
 };

@@ -4,10 +4,8 @@
     <%- include('partials/_header') %>
   </head>
   <body>
-    <%- include('partials/_user_validation') %>
-    <% if(locals.cookies.username !== undefined){ %>
+    <%- include('partials/_navbar') %>
     <%- include('partials/_url_table') %>
-    <% } %>
     <%- include('partials/_footer')%>
   </body>
 </html>

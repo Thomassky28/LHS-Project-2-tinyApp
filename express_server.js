@@ -6,7 +6,6 @@ const cookieParser = require('cookie-parser');
 // require function library from libs
 const tinyAppFunctions = require('./libs/tinyApp-functions');
 const generateRandomString = tinyAppFunctions.generateRandomString;
-const addCookiesToObj = tinyAppFunctions.addCookiesToObj;
 const lookUpObj = tinyAppFunctions.lookUpObj;
 
 // set default port to 8080
@@ -25,6 +24,11 @@ const users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
+  },
+  "user3RandomID": {
+    id: "user3RandomID", 
+    email: "byeong.kim0430@gmail.com", 
+    password: "123"
   }
 }
 
@@ -39,9 +43,30 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 
 
-// root function
-app.get('/', (req, res) => {
-  res.end('Hello!');
+// logout
+app.post('/logout', (req, res) => {
+  // upon logging out, remove username stored in cookies
+  res.clearCookie('user_id');
+  res.redirect('/urls');
+});
+
+// login
+app.get('/login', (req, res) => {
+  res.render('login_form');
+});
+
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  const user_id = Object.keys(users).filter(key => users[key].email === username && users[key].password === password);
+  console.log(user_id);
+  if(user_id.length === 0){
+    // unable to find login credentials
+    res.status(403).render('login_form', {message: 'Incorrect login credentials!'});
+  }else{
+    res.cookie('user_id', user_id[0]);
+    res.redirect('/urls');
+  }
 });
 
 app.get('/register', (req, res) => {
@@ -64,42 +89,28 @@ app.post('/register', (req, res) => {
       email: email,
       password: password
     };
+    // Add user_id in cookies
     res.cookie('user_id', users[newKey].id);
-    res.redirect('/urls');
+    res.render('login_form', {message: 'Please log in with your new credentials.'});
   }else{
-    res.status(400).render('register_form', {errMessage: 'Please use a different username and password combination!'});
+    res.status(400).render('register_form', {message: 'Please use a different username and password combination!'});
   }
 });
 
-// login
-app.get('/login', (req, res) => {
-
-})
-
-app.post('/login', (req, res) => {
-  // get username from the form
-  const username = req.body.username;
-  // store username in the cookies
-  res.cookie('username', username);
-  res.redirect('/urls');
-});
-
-// logout
-app.post('/logout', (req, res) => {
-  // upon logging out, remove username stored in cookies
-  res.clearCookie('username');
-  res.redirect('/urls');
-});
-
 // get + /urls rendered to urls_index.ejs. display a table of shortURL and longURL
-app.get('/urls', (req, res) => {
+app.get('/urls', (req, res) => {  
+  const userId = Object.keys(users).filter(key => key === req.cookies.user_id);
   const templateVars = { 
     urls: urlDatabase,
-    users: users
+    user: users[userId]
   };
-  addCookiesToObj(req, templateVars);
-  console.log(templateVars);
-  res.render('urls_index', templateVars);
+  
+  if (userId.length === 1){
+    res.render('urls_index', templateVars);
+  }
+  else{
+    res.redirect('/login');
+  }
 });
 
 // 'Create new short URL' button -> POST -> redirect to urls_new.ejs
@@ -109,8 +120,7 @@ app.post('/urls/new', (req, res) => {
 
 // get + /urls/new rendered to urls_new.ejs. triggered when you go to /urls/new
 app.get('/urls/new', (req, res) => {
-  const templateVars = addCookiesToObj(req, {});
-  res.render('urls_new', templateVars);
+  res.render('urls_new', {user: users[req.cookies.user_id]});
 });
 
 // longURL submitted -> POST -> urls_index
@@ -126,8 +136,10 @@ app.post('/urls', (req, res) => {
   request(options, (reqErr, reqRes, reqBody) => {
     const err = {
       errURL: longURL,
-      suggestion: ''
+      suggestion: '',
+      user: users[req.cookies.user_id]
     };
+
     if(reqErr){
       // Add the error name and message to err Object
       err.name = reqErr.name;
@@ -157,34 +169,12 @@ app.post('/urls', (req, res) => {
   });
 });
 
-// When you use a shortURL to go its corresponding website
-app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-});
-
-// triggered when `delete` button is clicked
-app.post('/urls/:id/delete', (req, res) => {
-  const shortURL = req.params.id;
-  delete urlDatabase[shortURL];
-
-  res.redirect('/urls');
-});
-
 // triggered when `update` button is clicked
 app.post('/urls/:id', (req, res) => {
   const templateVars = {
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id]
-  };
-  addCookiesToObj(req, templateVars);
-  res.render('urls_show', templateVars);
-});
-
-app.get('/urls/:id', (req, res) => {
-  const templateVars = {
-    shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id]
+    longURL: urlDatabase[req.params.id],
+    user: users[req.cookies.user_id]
   };
   res.render('urls_show', templateVars);
 });
@@ -202,10 +192,9 @@ app.post('/urls/:id/update', (req, res) => {
     const err = {
       shortURL: shortURL,
       errURL: newLongURL,
-      suggestion: ''
+      suggestion: '',
+      user: users[req.cookies.user_id]
     };
-    
-    addCookiesToObj(req, err);
     
     if(reqErr){
       // Add the error name and message to err Object
@@ -235,6 +224,30 @@ app.post('/urls/:id/update', (req, res) => {
     }
   });
 });
+
+// When you use a shortURL to go its corresponding website
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
+// triggered when `delete` button is clicked
+app.post('/urls/:id/delete', (req, res) => {
+  const shortURL = req.params.id;
+  delete urlDatabase[shortURL];
+
+  res.redirect('/urls');
+});
+
+app.get('/urls/:id', (req, res) => {
+  const templateVars = {
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id],
+    user: users[req.cookies.user_id]
+  };
+  res.render('urls_show', templateVars);
+});
+
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
