@@ -10,8 +10,9 @@ Download the following modules via npm
 - ejs
 - body-parser
 - cookie-parser
+- bcrypt (`npm install bcryptjs` instead of `npm install bcrypt`)
 
 ```js
 npm init
-npm install express request ejs body-parser cookie-parser
+npm install express request ejs body-parser cookie-parser bcryptjs
 ```

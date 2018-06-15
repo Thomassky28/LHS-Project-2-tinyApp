@@ -4,10 +4,11 @@
   "description": "Project #2 - tinyApp that shortens URLs",
   "main": "express_server.js",
   "dependencies": {
-    "cookie-parser": "^1.4.3",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
-    "express": "^4.16.3",
+    "cookie-parser": "^1.4.3",
     "ejs": "^2.6.1",
+    "express": "^4.16.3",
     "request": "^2.87.0"
   },
   "devDependencies": {},

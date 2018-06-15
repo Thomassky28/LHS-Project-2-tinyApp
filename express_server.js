@@ -3,6 +3,8 @@ const app = require('express')();
 const request = require('request');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+
 // require function library from libs
 const tinyAppFunctions = require('./libs/tinyApp-functions');
 const generateRandomString = tinyAppFunctions.generateRandomString;
@@ -25,7 +27,7 @@ const urlDatabase = {
   '12ohzf': {
     id: '12ohzf',
     address: 'http://www.youtube.com',
-    user_id: 'user3RandomID'
+    user_id: 'VVikGbDTtA'
   }
 };
 
@@ -33,17 +35,17 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "$2a$13$fmXWnm0tC2LVVUegJz5aY.GKaTvJnyl9CVkZfJ/knjDP.JmA2efwe" // purple-monkey-dinosaur
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: "$2a$13$LeUJ6iHqh.6mOQLVYIkVHejODwtdiSQUCS6qrFubgJYdqwdKjckpS" // dishwasher-funk
   },
-  "user3RandomID": {
-    id: "user3RandomID", 
+  "VVikGbDTtA": {
+    id: "VVikGbDTtA", 
     email: "byeong.kim0430@gmail.com", 
-    password: "123"
+    password: "$2a$13$jvmek0ZdLYA65QNFfLbNw.Tz2WlDyzbs3cyYfP4m9Pt5MxF0gaSUa"
   }
 }
 
@@ -74,17 +76,25 @@ app.get('/login', (req, res) => {
   res.render('login_form');
 });
 
-// re-attempt logins. error message will be triggered if incorrect login credentials were passed.
 app.post('/login', (req, res) => {
   const {username, password} = req.body;
-  const user_id = Object.keys(users).filter(key => users[key].email === username && users[key].password === password)[0];
+  const dbUser = Object.values(users).filter(value => value.email === username)[0];
 
-  if(user_id){
-    res.cookie('user_id', user_id);
+  if(!dbUser){
+    // email doesn't exist in db
+    res.status(403).render('login_form', {message: "Email doesn't exist!"});
+    return;
+  }
+
+  // if dbUser exists, compare the passwords
+  const checkPassword = bcrypt.compareSync(password, dbUser.password);
+  if(checkPassword){
+    // correct password
+    res.cookie('user_id', dbUser.id);
     res.redirect('/urls');
   }else{
-    // unable to find login credentials
-    res.status(403).render('login_form', {message: 'Incorrect login credentials!'});
+    // incorrect password
+    res.status(403).render('login_form', {message: "Incorrect password!"});
   }
 });
 
@@ -100,12 +110,13 @@ app.post('/register', (req, res) => {
   // If the returned email OR password were not found in the users database, add them to the database!
   if(email === '' || password === ''){
     res.status(400).render('register_form', {message: 'Registration form incomplete!'});
-  }else if(checkEmail.length + checkPassword.length === 0){
+  }else if(checkEmail.length === 0){
     const newKey = generateRandomString(10);
+    const hashPassword = bcrypt.hashSync(password, 13);
     users[newKey] = {
       id: newKey,
       email: email,
-      password: password
+      password: hashPassword
     };
     // Add user_id in cookies
     res.cookie('user_id', users[newKey].id);
