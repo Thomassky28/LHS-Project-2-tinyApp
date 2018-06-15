@@ -198,6 +198,7 @@ app.post('/urls/:id', (req, res) => {
     longURL: urlDatabase[req.params.id].address,
     user: users[req.cookies.user_id]
   };
+  
   res.render('urls_show', templateVars);
 });
 
@@ -243,7 +244,7 @@ app.post('/urls/:id/update', (req, res) => {
       res.render('urls_show', err);
     }else{
       // longURL works fine. Update the database
-      urlDatabase[shortURL] = newLongURL;
+      urlDatabase[shortURL].address = newLongURL;
       res.redirect('/urls');
     }
   });
@@ -251,7 +252,7 @@ app.post('/urls/:id/update', (req, res) => {
 
 // When you use a shortURL to go its corresponding website
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].address;
   res.redirect(longURL);
 });
 
@@ -268,18 +269,33 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 app.get('/urls/:id', (req, res) => {
-  if(req.cookies.user_id){
+  const shortURL = req.params.id;
+  const cookieUserId = req.cookies.user_id;
+  // if there is no cookie user_id, redirect to /login
+  if(!cookieUserId){
+    res.redirect('/login');
+    return;
+  }
+  if(!urlDatabase[shortURL]){
+    // enters incorrect shortURL 
+    const templateVars = {
+      user: users[cookieUserId],
+      authMessage: `${shortURL} does not exist!`
+    }
+    res.render('urls_show', templateVars); 
+    return;
+  }
+  if(urlDatabase[shortURL].user_id === cookieUserId){
     // user_id exists in cookie
     const templateVars = {
-      shortURL: req.params.id,
-      longURL: urlDatabase[req.params.id],
-      user: users[req.cookies.user_id]
+      shortURL: shortURL,
+      longURL: urlDatabase[shortURL].address,
+      user: users[cookieUserId]
     };
     res.render('urls_show', templateVars);
   }else{
-    res.redirect('/login');
+    res.render('urls_show', {authMessage: `You cannot view details for ${shortURL}`});
   }
-
 });
 
 

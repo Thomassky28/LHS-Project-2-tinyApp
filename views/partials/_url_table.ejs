@@ -15,7 +15,6 @@
     </thead>
     <tbody>
       <% Object.keys(urls).forEach(key =>{ %>
-      <!-- <% if(urls[key].user_id === user.id){ %> -->
       <tr>
         <td><%= urls[key].id %></td>
         <td><%= urls[key].address %></td>
@@ -30,7 +29,6 @@
           </form>
         </td>
       </tr>
-      <!-- <% } %> -->
       <% }) %>
     </tbody>
   </table>
