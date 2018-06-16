@@ -1,0 +1,20 @@
+<div class='container'>
+  <% if(locals.longURL && locals.errName){ %>
+    <div class='alert alert-danger'>
+      <strong><%- `${errName}! ` %></strong><%- `${errMessage}` %><%- `${suggestion}` %>
+    </div>
+  <% } %>
+  <label for='url-summary-table'><h3>Summary Table</h3></label>
+  <table class='table table-bordered' name='url-summary-table'>
+    <thead>
+      <th>longURL</th>
+      <th>shortURL</th>
+      <% if(locals.stats){ %><th>Total Visit Count</th><% } %>
+    </thead>
+    <tbody>
+        <td>http://<%= longURL %></td>
+        <td><%= shortURL %></td>
+        <% if(locals.stats){ %><td><%= `${stats.totalVisitCount}` %></td><% } %>
+    </tbody>
+  </table>
+</div>

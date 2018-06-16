@@ -1,5 +1,6 @@
 // require npm modules
-const app = require('express')();
+const express = require('express');
+const app = express();
 const request = require('request');
 const bodyParser = require('body-parser'); // for post method
 const cookieSession = require('cookie-session'); // for encrypting cookie
@@ -11,6 +12,7 @@ const tinyAppFunctions = require('./libs/tinyApp-functions');
 const getRequestResults = tinyAppFunctions.getRequestResults;
 const generateRandomString = tinyAppFunctions.generateRandomString;
 const urlsForUser = tinyAppFunctions.urlsForUser;
+const trimHTTP = tinyAppFunctions.trimHTTP;
 
 // set default port to 8080
 const port = 8080;
@@ -69,6 +71,7 @@ app.use(cookieSession({
 }));
 // override with POST having ?_method=DELETE and ?_method=PUT
 app.use(methodOverride('_method'));
+app.use(express.static(__dirname + '/'));
 
 // add ejs as a view engine
 app.set('view engine', 'ejs');
@@ -76,32 +79,32 @@ app.set('view engine', 'ejs');
 
 // get
 app.get('/', (req, res) => {
-  const cookieUserId = req.session.user_id;
-  (cookieUserId === undefined) ? res.redirect('/login') : res.redirect('/urls');
+  const {user_id} = req.session;
+  (user_id) ? res.redirect('/urls') : res.redirect('/login');
 });
 
 // login
 app.get('/login', (req, res) => {
-  const cookieUserId = req.session.user_id;
-  (cookieUserId === undefined) ? res.render('login_form') : res.redirect('/urls');
+  const {user_id} = req.session;
+  (user_id) ? res.redirect('/urls') : res.render('login_form');
 });
 
 app.get('/register', (req, res) => {
-  const cookieUserId = req.session.user_id;
-  (cookieUserId === undefined) ? res.render('register_form') : res.redirect('/urls');
+  const {user_id} = req.session;
+  (user_id) ? res.redirect('/urls') : res.render('register_form');
 });
 
 // render urls_index.ejs and display a table of shortURL and longURL
 app.get('/urls', (req, res) => {
   // check cookie to see if user id is stored
-  const cookieUserId = req.session.user_id;
-  const matchingIdRecords = Object.keys(users).filter(key => key === cookieUserId);
-
+  const {user_id} = req.session;
+  const matchingIdRecords = Object.keys(users).filter(key => key === user_id);
+  
   if (matchingIdRecords.length) {
-    // matching record found. render urls_index.ejs with data filtered for the logged-in user
+    // matching record found. render urls_index.ejs with data FILTERED for the logged-in user
     const templateVars = {
-      urls: urlsForUser(cookieUserId, urlDatabase),
-      user: users[cookieUserId]
+      urls: urlsForUser(user_id, urlDatabase),
+      user: users[user_id]
     };
     res.render('urls_index', templateVars);
   } else {
@@ -112,9 +115,9 @@ app.get('/urls', (req, res) => {
 
 // if user id found in cookie, render urls_new.ejs. otherwise redirect to login page
 app.get('/urls/new', (req, res) => {
-  const cookieUserId = req.session.user_id;
-  if (cookieUserId) {
-    res.render('urls_new', { user: users[cookieUserId] });
+  const {user_id} = req.session;
+  if (user_id) {
+    res.render('urls_new', { user: users[user_id] });
   } else {
     res.redirect('/login');
   }
@@ -122,31 +125,31 @@ app.get('/urls/new', (req, res) => {
 
 // when shortURL used, redirect to the original URL and store each visit numbers in cookie
 app.get('/u/:shortURL', (req, res) => {
-  const cookieUserId = req.session.user_id;
-  const shortURL = req.params.shortURL;
+  const {user_id} = req.session;
+  const {shortURL} = req.params;
   
   // check if the shortURL exists. if not redner urls_show.ejs with a message
   if (!urlDatabase[shortURL]) {
     // entered incorrect shortURL 
     const templateVars = {
-      user: users[cookieUserId],
-      authMessage: `${shortURL} does not exist!`
+      user: users[user_id],
+      authMessage: `'${shortURL}' does not exist`
     }
     res.render('urls_show', templateVars);
     return;
   }
 
-  // if shortURL exists in db, add the number of visits to db and redirect to the address
+  // if shortURL exists in db, then add the number of visits to db and redirect to the address
   const {address, count} = urlDatabase[shortURL];
   // check if the current user id is found in count.
-  if(Object.keys(count).indexOf(cookieUserId) === -1){
+  if(Object.keys(count).indexOf(user_id) === -1){
     // if not found, add the first count
-    urlDatabase[shortURL].count[cookieUserId] = {
+    urlDatabase[shortURL].count[user_id] = {
       visit_count: 1
     }
   }else{
-    // if found, add 1
-    urlDatabase[shortURL].count[cookieUserId].visit_count++;
+    // if found, add 1 to the existing visit count
+    urlDatabase[shortURL].count[user_id].visit_count++;
   }
   // redirect to the original URL
   res.redirect(address);
@@ -154,9 +157,9 @@ app.get('/u/:shortURL', (req, res) => {
 
 // if user is already logged in, render urls_show.ejs. otherwise, redirect to login
 app.get('/urls/:id', (req, res) => {
-  const cookieUserId = req.session.user_id;
+  const {user_id} = req.session;
   // if there is no cookie user_id, redirect to /login
-  if (!cookieUserId) {
+  if (!user_id) {
     res.render('login_form', { message: 'Please log in first' });
     return;
   }
@@ -165,34 +168,38 @@ app.get('/urls/:id', (req, res) => {
   if (!urlDatabase[shortURL]) {
     // entered incorrect shortURL 
     const templateVars = {
-      user: users[cookieUserId],
-      authMessage: `${shortURL} does not exist!`
+      user: users[user_id],
+      authMessage: `'${shortURL}' does not exist`
     }
     res.render('urls_show', templateVars);
     return;
   }
 
   // user already logged in and correct shortURL entered
-  if (urlDatabase[shortURL].owner === cookieUserId) {
+  if (urlDatabase[shortURL].owner === user_id) {
     // owner of shortURL is the current user
-    // count in urlDatabase
-    const countField = urlDatabase[shortURL].count;
+    // get count in urlDatabase
+    const {count} = urlDatabase[shortURL];
     let totalVisitCount = 0;
-    Object.keys(countField).forEach(user_id => {
-      totalVisitCount += countField[user_id].visit_count;
+    Object.keys(count).forEach(user_id => {
+      totalVisitCount += count[user_id].visit_count;
     })
- 
+    
+    // `http://` is already pre-defined on the website. remove the protocol when you return the URL
+    const trimmedURL = trimHTTP(urlDatabase[shortURL].address);
     const templateVars = {
       shortURL: shortURL,
-      longURL: urlDatabase[shortURL].address,
-      user: users[cookieUserId],
-      totalVisitCount: totalVisitCount
+      longURL: trimmedURL,
+      user: users[user_id],
+      stats: {
+        totalVisitCount: totalVisitCount
+      }
     };
     res.render('urls_show', templateVars);
   } else {
     // shortURL doesn't belong to the current user
     const templateVars = {
-      user: users[cookieUserId],
+      user: users[user_id],
       authMessage: `You cannot view details for ${shortURL}`
     };
     res.render('urls_show', templateVars);
@@ -249,7 +256,7 @@ app.post('/register', (req, res) => {
 
   // empty email or password
   if (!email || !password) {
-    res.status(400).render('register_form', { message: 'Registration form incomplete!' });
+    res.status(400).render('register_form', { message: 'Registration form incomplete' });
     return;
   }
   
@@ -274,8 +281,8 @@ app.post('/register', (req, res) => {
 // new longURL submitted check if it has no error
 app.post('/urls', (req, res) => {
   // check cookie to see if user id is stored
-  const cookieUserId = req.session.user_id;
-  const matchingIdRecords = Object.keys(users).filter(key => key === cookieUserId);
+  const {user_id} = req.session;
+  const matchingIdRecords = Object.keys(users).filter(key => key === user_id);
   if (!matchingIdRecords.length) {
     // no matching record. user must log in
     res.render('login_form', { message: 'Please log in first' });
@@ -283,8 +290,14 @@ app.post('/urls', (req, res) => {
   }
 
   // if user is logged in..
-  // trim white spaces and convert everything to lowercase
-  const longURL = req.body.longURL.toLowerCase().trim();
+  /*
+    trim white spaces and convert everything to lowercase
+    `http://` is already pre-defined. if that is found in longURL, 
+    remove it and add the pre-defined protocol
+  */
+  const originalURL = trimHTTP(req.body.longURL.toLowerCase().trim());
+  const longURL = 'http://' + originalURL;
+  
   // options for request() function
   const options = {
     url: longURL,
@@ -292,11 +305,11 @@ app.post('/urls', (req, res) => {
   };
   // create object to compile results of getRequestResults()
   const reqInput = {
-    user: users[req.session.user_id],
+    user: users[user_id],
+    originalURL: originalURL,
     longURL: longURL,
     suggestion: ''
   };
-
   // send a request to a new URL and receive a response
   getRequestResults(request, options, reqInput).then(templateVars => {
     if (templateVars.errName) {
@@ -308,7 +321,7 @@ app.post('/urls', (req, res) => {
       urlDatabase[newKey] = {
         id: newKey,
         address: longURL,
-        owner: req.session.user_id,
+        owner: user_id,
         count: {}
       };
       res.redirect(`/urls/${newKey}`);
@@ -319,8 +332,8 @@ app.post('/urls', (req, res) => {
 // triggered when longURL is updated
 app.put('/urls/:id', (req, res) => {
   // check if user is logged in
-  const cookieUserId = req.session.user_id;
-  const matchingIdRecords = Object.keys(users).filter(key => key === cookieUserId);
+  const {user_id} = req.session;
+  const matchingIdRecords = Object.keys(users).filter(key => key === user_id);
 
   // user not logged in. redner login_form with a message
   if (!matchingIdRecords.length) {
@@ -330,42 +343,66 @@ app.put('/urls/:id', (req, res) => {
   }
 
   // if user's logged in, check if the current user is the URL owner
-  const {shortURL, newLongURL} = req.body;
-  const urlOwner = urlDatabase[shortURL].owner;
-  if(urlOwner === cookieUserId){
+  const {shortURL} = req.body;
+  const urlMatch = urlDatabase[shortURL];
+  if(!urlMatch){
+    // URL does not exist in db
+    const templateVars = {
+      user: users[user_id],
+      authMessage: `${shortURL} does not exist`
+    };
+    res.render('urls_show', templateVars);
+    return;
+  }
+
+  if(urlMatch.owner === user_id){
     // current user owns the URL
+    /*
+      trim white spaces and convert everything to lowercase
+      `http://` is already pre-defined. if that is found in longURL, 
+      remove it and add the pre-defined protocol
+    */
+    const originalURL = trimHTTP(req.body.longURL.toLowerCase().trim());
+    const longURL = 'http://' + originalURL;
+    
+    // options for request() function
     const options = {
-      url: newLongURL,
+      url: longURL,
       timeout: 3000
     };
     // create object to compile results of getRequestResults()
     const reqInput = {
-      user: users[req.session.user_id],
+      user: users[user_id],
       shortURL: shortURL,
-      longURL: newLongURL,
+      longURL: longURL,
       suggestion: ''
     };
-
+    
     // send a request to a new URL and receive a response
     getRequestResults(request, options, reqInput).then(templateVars => {
       if (templateVars.errName) {
         // error found in URL. render urls_show.ejs to show error message
+        // `http://` already pre-defined. remove it before sending it to urls_show.ejs
+        templateVars.longURL = trimHTTP(templateVars.longURL);
         res.render('urls_show', templateVars);
       } else {
         // longURL works fine. Update the database
-        urlDatabase[shortURL].address = newLongURL;
+        urlDatabase[shortURL].address = longURL;
         res.redirect('/urls');
       }
     });
   }else{
     // current user DOES NOT own the URL
     const templateVars = {
-      user: users[cookieUserId],
+      user: users[user_id],
       authMessage: `You cannot view details for ${shortURL}`
     };
     // shortURL doesn't belong to the current user
     res.render('urls_show', templateVars);
   }
+
+  
+
 });
 
 
@@ -373,8 +410,8 @@ app.put('/urls/:id', (req, res) => {
 // post -> delete by method-override
 app.delete('/urls/:id', (req, res) => {
   // check if user is logged in
-  const cookieUserId = req.session.user_id;
-  const matchingIdRecords = Object.keys(users).filter(key => key === cookieUserId);
+  const {user_id} = req.session;
+  const matchingIdRecords = Object.keys(users).filter(key => key === user_id);
 
   // user not logged in. redner login_form with a message
   if (!matchingIdRecords.length) {
@@ -385,8 +422,8 @@ app.delete('/urls/:id', (req, res) => {
 
   // user logged in. check if the user owns the URL to be deleted
   const shortURL = req.params.id;
-  const urlOwner = urlDatabase[shortURL].owner;
-  if(urlOwner === cookieUserId){
+  const {owner} = urlDatabase[shortURL];
+  if(owner === user_id){
     // user owns the URL
     delete urlDatabase[shortURL];
     res.redirect('/urls');
@@ -397,5 +434,5 @@ app.delete('/urls/:id', (req, res) => {
 
 
 app.listen(port, () => {
-  console.log(`Example app listening to port ${port}!`);
+  console.log(`Example app listening to port ${port}`);
 });

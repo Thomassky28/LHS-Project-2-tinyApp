@@ -1,0 +1,17 @@
+<div class='container' id='new-url-div'>
+  <% if(locals.longURL){ %>
+  <div class='alert alert-danger'>
+    <strong><%- `${errName}! ` %></strong><%- `${errMessage}` %><%- `${suggestion}` %>
+  </div>
+  <% } %>
+  <div id='input-div'>
+    <form action='/urls' method='POST'>
+      <div class='form-group'>
+        <p><h2>Please enter your new URL</h2></p><br>
+        <label for='longURL'>http://</label>
+        <input id='longURL' type='text' name='longURL' placeholder='google.com' value='<% if(locals.originalURL){ %><%= originalURL %><% } %>' style='width: 300px;'>
+        <button class='btn btn-primary btn-sm' type='submit'>SUBMIT</button>
+      </div>
+    </form>
+  </div>
+</div>

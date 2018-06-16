@@ -5,25 +5,7 @@
   </head>
   <body>
     <%- include('partials/_navbar') %>
-    <% if(locals.authMessage){ %>
-    <div id='show-message'>
-      <p><%= authMessage %></p>
-    </div>
-    <% }else{ %>
-    <h2>ShortURL: <%= shortURL %><% if(locals.totalVisitCount >= 0){ %><%= `, Visit Count: ${totalVisitCount}` %><% } %></h2>
-    <form action='/urls/<%= shortURL %>?_method=PUT' method='POST'>
-      <input id='shortURL' type='hidden' name='shortURL' value='<%= shortURL %>'>
-      <input id='newLongURL' type='text' name='newLongURL' value='<% if(locals.longURL){ %><%= longURL %><% }else{ %><%= locals.longURL %><% } %>'>
-      <input type='submit' value='Update'>
-    </form>
-    <p>
-      <% if(locals.longURL && locals.errName){ %>
-      <%- `${errName}: ${errMessage}` %>
-      <br>
-      <%- `${suggestion}` %>
-      <% } %>
-    </p>
-    <% } %>
+    <%- include('partials/_update_url') %>
     <%- include('partials/_footer')%>
   </body>
 </html>

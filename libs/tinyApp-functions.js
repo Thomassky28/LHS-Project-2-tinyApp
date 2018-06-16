@@ -55,9 +55,15 @@ function urlsForUser(id, urlDatabase){
   return result;
 }
 
+// Trim http:// or https://
+function trimHTTP(string){
+  return string.replace(/^(h(t+)p(s)?)(:|;)?(\/+)?/ig, '');
+} 
+
 // Export the function
 module.exports = {
   getRequestResults: getRequestResults,
   generateRandomString: generateRandomString,
-  urlsForUser: urlsForUser
+  urlsForUser: urlsForUser,
+  trimHTTP: trimHTTP
 };

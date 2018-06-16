@@ -1,0 +1,24 @@
+<div class='container' id='update-url-div'>
+  <% if(locals.authMessage){ %>
+    <!-- triggered when 1. incorrect shortURL is provided 2. owner does not own the shortURL provided -->
+    <div class='alert alert-danger'>
+      <strong>Warning! </strong><%= authMessage %>
+    </div>
+    <% }else{ %>
+    <%- include('_url_summary') %>
+    <form action='/urls' method='GET'>
+      <button class='btn btn-primary btn-sm' type='submit'>TAKE ME BACK HOME</button>
+    </form>
+    <hr>
+    <p>or......</p>
+    <form action='/urls/<%= shortURL %>?_method=PUT' method='POST'>
+      <div class='form-group'>
+        <p><h3>Update URL</h3></p><br>
+        <input id='shortURL' type='hidden' name='shortURL' value='<%= shortURL %>'>
+        <label for='longURL'>http://</label>
+        <input id='longURL' type='text' name='longURL' value='<% if(locals.longURL){ %><%= longURL %><% }else{ %><%= locals.longURL %><% } %>' style='width: 300px;'>
+        <button class='btn btn-success btn-sm' type='submit'>UPDATE</button>
+      </div>
+    </form>
+  <% } %>
+</div>

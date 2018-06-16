@@ -1,10 +1,11 @@
-<div class='container'>
+<div class='container' id='table-div'>
   <% if(locals.message){ %>
   <div class='alert alert-danger'>
     <strong>Warning! </strong><%= message %>
   </div>
   <% } %>
   <div class='table-container'>
+    <p><h2>Your URLs</h2></p><br>
     <table class='table table-bordered'>
       <thead>
         <tr>
@@ -25,7 +26,7 @@
           <td><%= urls[key].id %></td>
           <td>
             <form action='<%- `/urls/${urls[key].id}` %>' method='GET'>
-              <button class='btn btn-warning btn-sm' type='submit'>EDIT</button>
+              <button class='btn btn-warning btn-sm' type='submit'>VIEW STATS | EDIT</button>
             </form>
           </td>
           <td>
