@@ -10,7 +10,7 @@
       <p><%= authMessage %></p>
     </div>
     <% }else{ %>
-    <h2>ShortURL: <%= shortURL %></h2>
+    <h2>ShortURL: <%= shortURL %><% if(locals.visitCount){ %><%= ` ${visitCount} visits` %><% } %></h2>
     <form action='/urls/<%= shortURL %>?_method=PUT' method='POST'>
       <input id='shortURL' type='hidden' name='shortURL' value='<%= shortURL %>'>
       <input id='newLongURL' type='text' name='newLongURL' value='<% if(locals.longURL){ %><%= longURL %><% }else{ %><%= locals.longURL %><% } %>'>
