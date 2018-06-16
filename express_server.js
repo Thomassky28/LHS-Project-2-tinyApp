@@ -5,7 +5,7 @@ const request = require('request');
 const bodyParser = require('body-parser'); // for post method
 const cookieSession = require('cookie-session'); // for encrypting cookie
 const methodOverride = require('method-override'); // for enabling put and delete methods
-const bcrypt = require('bcryptjs'); // for password hasing
+const bcrypt = require('bcrypt'); // for password hasing
 
 // require function library from libs
 const tinyAppFunctions = require('./libs/tinyApp-functions');
