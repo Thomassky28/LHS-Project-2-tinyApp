@@ -271,11 +271,6 @@ app.post('/register', (req, res) => {
   }
 });
 
-// // create URL button clicked. redirect to /urls/new
-// app.post('/urls/new', (req, res) => {
-//   res.redirect('/urls/new');
-// });
-
 // new longURL submitted check if it has no error
 app.post('/urls', (req, res) => {
   // check cookie to see if user id is stored
@@ -320,44 +315,6 @@ app.post('/urls', (req, res) => {
     }
   });
 });
-
-
-// // if visitCount is undefined, set it to 0
-// const visitCount = (req.session[`${shortURL}_visit`] === undefined) ? 0 : req.session[`${shortURL}_visit`];
-// const templateVars = {
-//   shortURL: shortURL,
-//   longURL: urlDatabase[shortURL].address,
-//   user: users[cookieUserId],
-//   visitCount: visitCount
-// };
-// res.render('urls_show', templateVars);
-
-// triggered when longURL is updated
-app.post('/urls/:id', (req, res) => {
-  const shortURL = req.params.id;
-  const cookieUserId = req.session.user_id;
-  const matchingIdRecords = Object.keys(users).filter(key => key === cookieUserId);
-
-  // user not logged in. redner login_form with a message
-  if (!matchingIdRecords.length) {
-    // no matching record. user must log in
-    res.render('login_form', { message: 'Please log in first' });
-    return;
-  }
-  console.log(urlDatabase[cookieUserId].owner);
-
-
-  // // if visitCount is undefined, set it to 0
-  // const visitCount = (req.session[`${shortURL}_visit`] === undefined) ? 0 : req.session[`${shortURL}_visit`];
-  // const templateVars = {
-  //   shortURL: shortURL,
-  //   longURL: urlDatabase[shortURL].address,
-  //   user: users[cookieUserId],
-  //   visitCount: visitCount
-  // };
-  // res.render('urls_show', templateVars);
-});
-
 
 // triggered when longURL is updated
 app.put('/urls/:id', (req, res) => {
@@ -409,7 +366,6 @@ app.put('/urls/:id', (req, res) => {
     // shortURL doesn't belong to the current user
     res.render('urls_show', templateVars);
   }
-
 });
 
 
