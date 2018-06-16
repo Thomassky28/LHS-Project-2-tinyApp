@@ -19,8 +19,8 @@
         <td><%= urls[key].id %></td>
         <td><%= urls[key].address %></td>
         <td>
-          <form action='<%- `/urls/${urls[key].id}` %>' method='POST'>
-            <button class='btn btn-warning' type='submit'>Update</button>
+          <form action='<%- `/urls/${urls[key].id}` %>' method='GET'>
+            <button class='btn btn-warning' type='submit'>Edit</button>
           </form>
         </td>
         <td>
