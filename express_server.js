@@ -10,7 +10,6 @@ const bcrypt = require('bcryptjs'); // for password hasing
 const tinyAppFunctions = require('./libs/tinyApp-functions');
 const getRequestResults = tinyAppFunctions.getRequestResults;
 const generateRandomString = tinyAppFunctions.generateRandomString;
-const lookUpObj = tinyAppFunctions.lookUpObj;
 const urlsForUser = tinyAppFunctions.urlsForUser;
 
 // set default port to 8080
@@ -19,17 +18,27 @@ const urlDatabase = {
   'b2xVn2': {
     id: 'b2xVn2',
     address: 'http://www.lighthouselabs.ca',
-    user_id: 'user2RandomID'
+    owner: 'user2RandomID',
+    count: {}
   },
   '9sm5xK': {
     id: '9sm5xK',
     address: 'http://www.google.com',
-    user_id: 'user3RandomID'
+    owner: 'VVikGbDTtA',
+    count: {}
   },
   '12ohzf': {
     id: '12ohzf',
     address: 'http://www.youtube.com',
-    user_id: 'VVikGbDTtA'
+    owner: 'VVikGbDTtA',
+    count: {
+      userRandomID: {
+        visit_count: 1
+      },
+      user2RandomID: {
+        visit_count: 3
+      }
+    }
   }
 };
 
@@ -114,19 +123,32 @@ app.get('/urls/new', (req, res) => {
 
 // when shortURL used, redirect to the original URL and store each visit numbers in cookie
 app.get('/u/:shortURL', (req, res) => {
+  const cookieUserId = req.session.user_id;
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].address;
-  const visitKey = `${shortURL}_visit`;
+  const {address, count} = urlDatabase[shortURL];
+  
+  // if (!urlDatabase[shortURL]) {
+  //   // entered incorrect shortURL 
+  //   const templateVars = {
+  //     user: users[cookieUserId],
+  //     authMessage: `${shortURL} does not exist!`
+  //   }
+  //   res.render('urls_show', templateVars);
+  //   return;
+  // }
 
-  if (Object.keys(req.session).indexOf(visitKey) === -1) {
-    // visit count doesn't exisit in cookie
-    req.session[visitKey] = 0;
-  } else {
-    // visit count exists. add 1 for each visit
-    req.session[visitKey]++;
+  // check if the current user id is found in count.
+  if(Object.keys(count).indexOf(cookieUserId) === -1){
+    // if not found, add the first count
+    urlDatabase[shortURL].count[cookieUserId] = {
+      visit_count: 1
+    }
+  }else{
+    // if found, add 1
+    urlDatabase[shortURL].count[cookieUserId].visit_count++;
   }
   // redirect to the original URL
-  res.redirect(longURL);
+  res.redirect(address);
 });
 
 // if user is already logged in, render urls_show.ejs. otherwise, redirect to login
@@ -150,13 +172,20 @@ app.get('/urls/:id', (req, res) => {
   }
 
   // user already logged in and correct shortURL entered
-  if (urlDatabase[shortURL].user_id === cookieUserId) {
+  if (urlDatabase[shortURL].owner === cookieUserId) {
+    // const visitCount = urlDatabase[shortURL].count[cookieUserId];
+    const countField = urlDatabase[shortURL].count;
+    let totalVisitCount = 0;
+    Object.keys(countField).forEach(user_id => {
+      totalVisitCount += countField[user_id].visit_count;
+    })
+    
     // owner of shortURL is the current user
     const templateVars = {
       shortURL: shortURL,
       longURL: urlDatabase[shortURL].address,
       user: users[cookieUserId],
-      visitCount: req.session[`${req.params.id}_visit`]
+      totalVisitCount: totalVisitCount
     };
     res.render('urls_show', templateVars);
   } else {
@@ -267,7 +296,7 @@ app.post('/urls', (req, res) => {
       urlDatabase[newKey] = {
         id: newKey,
         address: longURL,
-        user_id: req.session.user_id
+        owner: req.session.user_id
       };
       res.redirect('/urls');
     }
@@ -278,11 +307,13 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:id', (req, res) => {
   const shortURL = req.params.id;
   const cookieUserId = req.session.user_id;
+  // if visitCount is undefined, set it to 0
+  const visitCount = (req.session[`${shortURL}_visit`] === undefined) ? 0 : req.session[`${shortURL}_visit`];
   const templateVars = {
     shortURL: shortURL,
     longURL: urlDatabase[shortURL].address,
     user: users[cookieUserId],
-    visitCount: req.session[`${shortURL}_visit`]
+    visitCount: visitCount
   };
   res.render('urls_show', templateVars);
 });

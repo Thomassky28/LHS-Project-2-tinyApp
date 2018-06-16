@@ -45,24 +45,10 @@ function generateRandomString(length){
   return result;
 }
 
-/*
-  Find a value (needle) in an object (haystack). If the value exists, return the value, if not return an empty array
-  Options for identity: 
-  1. key: find needle in a haystack as a key
-  2. value: find needle in a haystack as a value
-*/
-function lookUpObj(needle, identity, haystack){
-  if(identity === 'key'){
-    return Object.keys(haystack).filter(key => needle === key);
-  }else if(identity === 'value'){
-    return Object.values(haystack).filter(val => needle === val);
-  }
-}
-
 function urlsForUser(id, urlDatabase){
   const result = {};
   Object.values(urlDatabase).forEach(item => {
-    if(item.user_id === id){
+    if(item.owner === id){
       result[item.id] = item;
     }
   });
@@ -73,6 +59,5 @@ function urlsForUser(id, urlDatabase){
 module.exports = {
   getRequestResults: getRequestResults,
   generateRandomString: generateRandomString,
-  lookUpObj: lookUpObj,
   urlsForUser: urlsForUser
 };
