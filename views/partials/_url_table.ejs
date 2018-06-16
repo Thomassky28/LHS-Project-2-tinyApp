@@ -1,4 +1,3 @@
-<% if(user){ %>
 <div>
   <table class='table table-striped'>
     <thead>
@@ -7,13 +6,14 @@
         <th>Long URL</th>
         <th colspan='2'>
           <!-- Use POST method to /urls_create so that it is rendered to urls_new.ejs -->
-          <form action='/urls/new' method='POST'>
+          <form action='/urls/new' method='GET'>
             <button class='btn btn-success' type='submit'>Create new short URL</button>
           </form>
         </th>
       </tr>
     </thead>
     <tbody>
+      <%= Object.keys(urls) %>
       <% Object.keys(urls).forEach(key =>{ %>
       <tr>
         <td><%= urls[key].id %></td>
@@ -33,8 +33,6 @@
     </tbody>
   </table>
 </div>
-<% }else{ %>
 <div class='table-message'>
-  <p>You must log in to view the URL table.</p>
+  <p><% if(locals.message){ %><%= message %><% } %></p>
 </div>
-<% } %>
