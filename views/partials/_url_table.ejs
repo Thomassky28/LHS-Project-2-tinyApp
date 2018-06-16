@@ -1,37 +1,41 @@
-<div>
-  <table class='table table-striped'>
-    <thead>
-      <tr>
-        <th>Short URL</th>
-        <th>Long URL</th>
-        <th colspan='2'>
-          <!-- Use POST method to /urls_create so that it is rendered to urls_new.ejs -->
-          <form action='/urls/new' method='GET'>
-            <button class='btn btn-success' type='submit'>Create new short URL</button>
-          </form>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <% Object.keys(urls).forEach(key =>{ %>
-      <tr>
-        <td><%= urls[key].id %></td>
-        <td><%= urls[key].address %></td>
-        <td>
-          <form action='<%- `/urls/${urls[key].id}` %>' method='GET'>
-            <button class='btn btn-warning' type='submit'>Edit</button>
-          </form>
-        </td>
-        <td>
-          <form action='<%- `/urls/${urls[key].id}?_method=DELETE` %>' method='POST'>
-            <button class='btn btn-danger' type='submit'>Delete</button>
-          </form>
-        </td>
-      </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
-<div class='table-message'>
-  <p><% if(locals.message){ %><%= message %><% } %></p>
+<div class='container'>
+  <% if(locals.message){ %>
+  <div class='alert alert-danger'>
+    <strong>Warning! </strong><%= message %>
+  </div>
+  <% } %>
+  <div class='table-container'>
+    <table class='table table-bordered'>
+      <thead>
+        <tr>
+          <th>Original URL</th>
+          <th>Short URL</th>
+          <th colspan='2'>
+            <!-- Use POST method to /urls_create so that it is rendered to urls_new.ejs -->
+            <form action='/urls/new' method='GET'>
+              <button class='btn btn-success btn-sm' type='submit'>CREATE NEW URL</button>
+            </form>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <% Object.keys(urls).forEach(key =>{ %>
+        <tr>
+          <td><%= urls[key].address %></td>
+          <td><%= urls[key].id %></td>
+          <td>
+            <form action='<%- `/urls/${urls[key].id}` %>' method='GET'>
+              <button class='btn btn-warning btn-sm' type='submit'>EDIT</button>
+            </form>
+          </td>
+          <td>
+            <form action='<%- `/urls/${urls[key].id}?_method=DELETE` %>' method='POST'>
+              <button class='btn btn-danger btn-sm' type='submit'>DELETE</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
 </div>

@@ -1,20 +1,24 @@
-<div align='center' id='register-div'>
-  <form class='form-vertical' action='/register' method='POST'>
-    <div class='form-group'>
-      <h3 id='register-title'>Registration Form</h3>
-      <p>Go back to <a href='/login'>Log in</a></p>
+<div class='container'>
+  <div id='register-div'>
+    <form class='form-vertical' action='/register' method='POST'>
+      <div class='form-group'>
+        <h3 id='register-title'>Registration Form</h3>
+        <p>Go back to <a href='/login'>Log in</a></p>
+      </div>
+      <div class='form-group'>
+        <input class='form-control' id='register-email' name='email' placeholder='Enter email address..' type='text'>
+      </div>
+      <div class='form-group'>
+        <input class='form-control' id='register-password' name='password' placeholder='Enter password..' type='password'>
+      </div>
+      <div class='form-group'>
+        <button class='btn btn-primary col-12' type='submit'>SIGN ME UP</button>
+      </div>
+    </form>
+    <% if(locals.message){ %>
+    <div class='alert alert-danger'>
+      <%= message %>
     </div>
-    <div class='form-group'>
-      <input class='form-control' id='register-email' name='email' placeholder='Enter email address..' type='text'>
-    </div>
-    <div class='form-group'>
-      <input class='form-control' id='register-password' name='password' placeholder='Enter password..' type='password'>
-    </div>
-    <div class='form-group'>
-      <button class='btn btn-primary btn-lg col-12' type='submit'>Register</button>
-    </div>
-  </form>
-  <div id='register-message'>
-    <p><% if(locals.message){ %><%= message %><% } %></p>
+    <% } %>
   </div>
-</div> 
+</div>

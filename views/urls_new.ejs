@@ -5,20 +5,23 @@
   </head>
   <body>
     <%- include('partials/_navbar') %>
-    <form action='/urls' method='POST' style='margin: 150px;'>
-     <label for='longURL'>Enter a URL:</label>
-     <input id='longURL' type='text' name='longURL' placeholder='<% if(!locals.longURL){ %>please add http://<% } %>' value='<% if(locals.longURL){ %><%= longURL %><% } %>' style='width: 300px;'>
-     <input type='submit' value='Submit'>
-    </form>
-    <p>
+    <div class='container'>
       <% if(locals.longURL){ %>
-        <%- `${errName}: ${errMessage}` %>
-        <br>
+      <div class='alert alert-danger'>
+        <strong>Warning! </strong><%- `${errName}: ${errMessage}` %>
         <%- `${suggestion}` %>
+      </div>
       <% } %>
-    </p>
-    <!-- Initially rendered page doesn't have `errObj` variable and the webpage will not work.
-    Add `locals.` before the variable to avoid that -->
+      <div id='new-url-div'>
+        <form action='/urls' method='POST' style='margin: 150px;'>
+          <div class='form-group'>
+            <label for='longURL'>Enter a URL:</label>
+            <input id='longURL' type='text' name='longURL' placeholder='<% if(!locals.longURL){ %>please add http://<% } %>' value='<% if(locals.longURL){ %><%= longURL %><% } %>' style='width: 300px;'>
+            <input type='submit' value='Submit'>
+          </div>
+        </form>
+      </div>
+    </div>
     <%- include('partials/_footer')%>
   </body>
 </html>

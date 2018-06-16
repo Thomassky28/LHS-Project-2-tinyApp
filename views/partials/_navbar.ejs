@@ -1,14 +1,28 @@
-<nav class="navbar navbar-light bg-light justify-content-between">
-  <a class="navbar-brand"><h3>Welcome <% if(locals.user){ %><%= user.email %><% }else{ %> to TinyApp<% } %>!</h3></a>
+<nav class="navbar navbar-expand-lg navbar-dark justify-content-between">
+  <div class='container'>
+    <a class="navbar-brand">
+      <p>
+        <h3><b>TinyApp</b></h3>
+        <% if(locals.user){ %>
+        <%= user.email %>
+        <% }else{ %>
+        allows users to shorten long URLs
+        <% } %>
+      </p>
+    </a>
+    <!-- logout button if user logged in -->
     <% if(locals.user){ %>
     <form class='form-inline' action='/logout' method='POST'>
-      <button class='btn btn-outline-success my-2 my-sm-0' type='submit'>Log out</button>
+      <button class='btn btn-danger' type='submit'>SIGN OUT</button>
     </form>
     <% }else{ %>
-    <div class='btn-group my-2 my-sm-0' role='group'>
-      <a href='/login'><button class='btn btn-primary'>Login</button></a>
-      <a href='/register'><button class='btn btn-success'>Register</button></a>
+    <!-- login and register buttons if user not logged in -->
+    <div class='btn-group my-auto my-sm-0' role='group'>
+      <span class='d-none d-md-inline-block'>
+      <a href='/login'><button class='btn btn-info'>LOG IN<i class='fa fa-sign-in ml-2'></i></button></a>
+      <a href='/register'><button class='btn btn-success'>REGISTER<i class="fa fa-pencil-square-o ml-2"></i></button></a>
+      </span>
     </div>
     <% } %>
-
+  </div>
 </nav>

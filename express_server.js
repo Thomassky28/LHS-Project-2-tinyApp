@@ -106,7 +106,7 @@ app.get('/urls', (req, res) => {
     res.render('urls_index', templateVars);
   } else {
     // no matching record. user must log in
-    res.render('login_form', { message: 'Please log in first' });
+    res.render('login_form', { message: 'Please log in' });
   }
 });
 
@@ -255,7 +255,7 @@ app.post('/register', (req, res) => {
   
   if (matchingRecords.length) {
     // there is a matching record. render the registration form with a message.
-    res.status(400).render('register_form', { message: 'Email already in use' });
+    res.status(400).render('register_form', { message: 'Please select another email' });
   } else {
     // no matching record. add the registration data form into db
     // make sure password is hashed with 13 salts
