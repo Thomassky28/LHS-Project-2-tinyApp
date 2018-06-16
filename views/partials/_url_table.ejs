@@ -10,8 +10,8 @@
       <thead>
         <tr>
           <th>Original URL</th>
-          <th>Short URL</th>
-          <th colspan='2'>
+          <th class='short-td'>Short URL</th>
+          <th width='35%' colspan='2'>
             <!-- Use POST method to /urls_create so that it is rendered to urls_new.ejs -->
             <form action='/urls/new' method='GET'>
               <button class='btn btn-success btn-sm' type='submit'>CREATE NEW URL</button>
@@ -26,7 +26,7 @@
           <td><%= urls[key].id %></td>
           <td>
             <form action='<%- `/urls/${urls[key].id}` %>' method='GET'>
-              <button class='btn btn-warning btn-sm' type='submit'>VIEW STATS | EDIT</button>
+              <button class='btn btn-warning btn-sm' type='submit'>EDIT</button>
             </form>
           </td>
           <td>

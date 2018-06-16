@@ -3,18 +3,31 @@
     <div class='alert alert-danger'>
       <strong><%- `${errName}! ` %></strong><%- `${errMessage}` %><%- `${suggestion}` %>
     </div>
-  <% } %>
+  <% }else{ %>
   <label for='url-summary-table'><h3>Summary Table</h3></label>
   <table class='table table-bordered' name='url-summary-table'>
     <thead>
-      <th>longURL</th>
-      <th>shortURL</th>
-      <% if(locals.stats){ %><th>Total Visit Count</th><% } %>
+      <th colspan='<% if(locals.stats){ %>3<% }else{ %>1<% } %>' class='long-td'>http://<%= longURL %></th>
     </thead>
     <tbody>
-        <td>http://<%= longURL %></td>
-        <td><%= shortURL %></td>
-        <% if(locals.stats){ %><td><%= `${stats.totalVisitCount}` %></td><% } %>
+      <tr>
+        <td>shortURL</th>
+        <% if(locals.stats){ %>
+        <td>Visit Stats</td>
+        <td>Created On</th>
+        <% } %>
+      </tr>
+      <tr>
+        <td rowspan='2'><%= shortURL %></td>
+        <% if(locals.stats){ %>
+        <td>Total # of <strong>Visits</strong>: <%= `${stats.totalVisitCount}` %></td>
+        <td rowspan='2'><%= `${stats.birthday}` %></td>
+      </tr>
+      <tr>
+        <td># of Unique <strong>Visitors</strong>: <%= `${stats.uniqueVisitors}` %></td>
+      </tr>
+      <% } %>
     </tbody>
   </table>
 </div>
+<% } %>

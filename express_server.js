@@ -21,18 +21,21 @@ const urlDatabase = {
     id: 'b2xVn2',
     address: 'http://www.lighthouselabs.ca',
     owner: 'user2RandomID',
+    birthInMs: 1519187812865,
     count: {}
   },
   '9sm5xK': {
     id: '9sm5xK',
     address: 'http://www.google.com',
     owner: 'VVikGbDTtA',
+    birthInMs: 132918741865,
     count: {}
   },
   '12ohzf': {
     id: '12ohzf',
     address: 'http://www.youtube.com',
     owner: 'VVikGbDTtA',
+    birthInMs: 1229187812235,
     count: {
       userRandomID: {
         visit_count: 1
@@ -178,12 +181,19 @@ app.get('/urls/:id', (req, res) => {
   // user already logged in and correct shortURL entered
   if (urlDatabase[shortURL].owner === user_id) {
     // owner of shortURL is the current user
-    // get count in urlDatabase
     const {count} = urlDatabase[shortURL];
+    // stats
+    // calculate the number of unique visitors
+    const uniqueVisitors = Object.keys(count).length;
+    // calculate the total number of visits
     let totalVisitCount = 0;
     Object.keys(count).forEach(user_id => {
       totalVisitCount += count[user_id].visit_count;
     })
+    // end - stats
+
+    // calculate the shortURL date from unix milliseconds
+    const birthday = /\d{4}-\d{2}-\d{2}/.exec(new Date(1529187812865).toISOString());
     
     // `http://` is already pre-defined on the website. remove the protocol when you return the URL
     const trimmedURL = trimHTTP(urlDatabase[shortURL].address);
@@ -192,7 +202,9 @@ app.get('/urls/:id', (req, res) => {
       longURL: trimmedURL,
       user: users[user_id],
       stats: {
-        totalVisitCount: totalVisitCount
+        uniqueVisitors: uniqueVisitors,
+        totalVisitCount: totalVisitCount,
+        birthday: birthday
       }
     };
     res.render('urls_show', templateVars);
@@ -316,12 +328,13 @@ app.post('/urls', (req, res) => {
       // error found. render urls_new with a error message
       res.render('urls_new', templateVars);
     } else {
-      // longURL works fine. Update the database
+      // longURL works fine. Update the database with a unixtime timestamp
       const newKey = generateRandomString(6);
       urlDatabase[newKey] = {
         id: newKey,
         address: longURL,
         owner: user_id,
+        birthInMs: + new Date(), // creation time in unix milliseconds
         count: {}
       };
       res.redirect(`/urls/${newKey}`);
