@@ -18,15 +18,16 @@ The app can
 ## npm
 ### Package Dependencies
 Download the following modules via npm
-- `express`
-- `request`
-- `ejs`
+- `bcrypt`
 - `body-parser`
 - `cookie-session (replaced `cookie-parser`)
-- `bcrypt`
+- `express`
+- `ejs`
+- `request`
+- `method-override`
 
 ### Installation
 ```js
 npm init
-npm install express request ejs body-parser cookie-parser bcrypt
+npm install bcrypt body-parser cookie-parser express ejs request method-override
 ```

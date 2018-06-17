@@ -4,9 +4,8 @@
   "description": "Project #2 - tinyApp that shortens URLs",
   "main": "express_server.js",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "bcrypt": "^2.0.1",
     "body-parser": "^1.18.3",
-    "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-beta.3",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
