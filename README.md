@@ -1,7 +1,8 @@
-# LHS Project #2 - TinyApp
+# TinyApp Project
 
-## Problem Statement
-TinyApp is an application that shortens a long URL with random alphanumeric characters
+TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs.
+
+## Final Product
 
 ## Features
 Users can
@@ -15,19 +16,22 @@ Users can
 The app can
 - check if the target URL has any error (i.e.: Error 403, 404) before creating or updating a short URL
 
-## npm
-### Package Dependencies
-Download the following modules via npm
+## Dependencies
+- Node.js
 - `bcrypt`
 - `body-parser`
-- `cookie-session (replaced `cookie-parser`)
+- `cookie-session`
 - `express`
 - `ejs`
 - `request`
 - `method-override`
 
-### Installation
+### Getting Started
+1. Install all dependicies using the `npm install` command.
+
 ```js
 npm init
 npm install bcrypt body-parser cookie-parser express ejs request method-override
 ```
+
+2. Run the development web server using the `node express_server.js` command.

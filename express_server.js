@@ -44,6 +44,23 @@ const urlDatabase = {
         visit_count: 3
       }
     }
+  },
+  '3A8sk2': {
+    id: '3A8sk2',
+    address: 'http://www.naver.com',
+    owner: 'VVikGbDTtA',
+    birthInMs: 1229587811235,
+    count: {
+      'user2RandomID': {
+        visit_count: 5
+      },
+      '3A8sk2': {
+        visit_count: 2
+      },
+      'userRandomID': {
+        visit_count: 8
+      }
+    }
   }
 };
 
