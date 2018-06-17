@@ -1,5 +1,5 @@
 <div class='container'>
-  <% if(locals.longURL && locals.errName){ %>
+  <% if(locals.errName){ %>
     <div class='alert alert-danger'>
       <strong><%- `${errName}! ` %></strong><%- `${errMessage}` %><%- `${suggestion}` %>
     </div>
