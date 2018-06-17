@@ -13,6 +13,8 @@ const getRequestResults = tinyAppFunctions.getRequestResults;
 const generateRandomString = tinyAppFunctions.generateRandomString;
 const urlsForUser = tinyAppFunctions.urlsForUser;
 const trimHTTP = tinyAppFunctions.trimHTTP;
+const findDupURL = tinyAppFunctions.findDupURL;
+
 
 // set default port to 8080
 const port = 8080;
@@ -100,18 +102,19 @@ app.set('view engine', 'ejs');
 // get
 app.get('/', (req, res) => {
   const { user_id } = req.session;
-  res.redirect(user_id ? '/urls' : '/login');
+  res.redirect((user_id === undefined) ? '/login' : '/urls');
 });
 
 // login
 app.get('/login', (req, res) => {
   const { user_id } = req.session;
-  (user_id) ? res.redirect('/urls') : res.render('login_form');
+  (user_id === undefined) ? res.render('login_form') : res.redirect('/urls');
 });
 
 app.get('/register', (req, res) => {
   const { user_id } = req.session;
-  (user_id) ? res.redirect('/urls') : res.render('register_form');
+  console.log(user_id);
+  (user_id === undefined) ? res.render('register_form') : res.redirect('/urls');
 });
 
 // render urls_index.ejs and display a table of shortURL and longURL
@@ -119,7 +122,6 @@ app.get('/urls', (req, res) => {
   // check cookie to see if user id is stored
   const { user_id } = req.session;
   const matchingIdRecords = Object.keys(users).filter(key => key === user_id);
-
   if (matchingIdRecords.length) {
     // matching record found. render urls_index.ejs with data FILTERED for the logged-in user
     const templateVars = {
@@ -341,6 +343,9 @@ app.post('/urls', (req, res) => {
   };
   // send a request to a new URL and receive a response
   getRequestResults(request, options, reqInput).then(() => {
+    // find potential duplicate data from db and return an array
+    const potentialDup = findDupURL(urlDatabase, user_id, originalURL, 'address');
+    
     // longURL works fine. Update the database with a unixtime timestamp
     const id = generateRandomString(6);
     urlDatabase[id] = {
@@ -350,7 +355,20 @@ app.post('/urls', (req, res) => {
       birthInMs: + new Date(), // creation time in unix milliseconds
       count: {}
     };
-    res.redirect(`/urls/${id}`);
+
+    // if there are any duplicates, render urls_show with warning data
+    if (potentialDup.length) {
+      const templateVars = {
+        shortURL: id,
+        user: users[user_id],
+        errName: 'Warning',
+        errMessage: 'potential duplicate(s)',
+        suggestion: `<br>- ${potentialDup.join('<br>- ')}`
+      }
+      res.render(`urls_show`, templateVars);
+    } else {
+      res.redirect(`/urls/${id}`);
+    }
   }, err => {
     // error found. render urls_new with an error message
     res.render('urls_new', err);
@@ -408,9 +426,25 @@ app.put('/urls/:id', (req, res) => {
 
     // send a request to a new URL and receive a response
     getRequestResults(request, options, reqInput).then(() => {
+      // find potential duplicate data from db and return an array
+      const potentialDup = findDupURL(urlDatabase, user_id, originalURL, 'address');
+      
       // longURL works fine. Update the database
       urlDatabase[shortURL].address = longURL;
-      res.redirect('/urls');
+
+      // if there are any duplicates, render urls_show with warning data
+      if (potentialDup.length) {
+        const templateVars = {
+          shortURL,
+          user: users[user_id],
+          errName: 'Warning',
+          errMessage: 'potential duplicate(s)',
+          suggestion: `<br>- ${potentialDup.join('<br>- ')}`
+        }
+        res.render(`urls_show`, templateVars);
+      } else {
+        res.redirect('/urls');
+      }
     }, err => {
       // error found. render urls_show with an error message
       // `http://` already pre-defined. remove it before sending it to urls_show.ejs
@@ -418,14 +452,14 @@ app.put('/urls/:id', (req, res) => {
       res.render('urls_show', err);
     });
   } else {
-  // current user DOES NOT own the URL
-  const templateVars = {
-    user: users[user_id],
-    authMessage: `You cannot view details for ${shortURL}`
-  };
-  // shortURL doesn't belong to the current user
-  res.render('urls_show', templateVars);
-}
+    // current user DOES NOT own the URL
+    const templateVars = {
+      user: users[user_id],
+      authMessage: `You cannot view details for ${shortURL}`
+    };
+    // shortURL doesn't belong to the current user
+    res.render('urls_show', templateVars);
+  }
 });
 
 
